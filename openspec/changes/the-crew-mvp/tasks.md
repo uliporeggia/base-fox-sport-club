@@ -23,18 +23,20 @@
 
 ## 4. Calendário de ativações (`activation-calendar`)
 
-- [ ] 4.1 Implementar listagem de ativações com filtro por tipo
+- [ ] 4.1 Implementar listagem de ativações com filtro por tipo e por organizador ("Nossos eventos" vs. "Onde estaremos")
 - [ ] 4.2 Implementar tela de detalhe da ativação
 - [ ] 4.3 Implementar confirmação/cancelamento de presença (RSVP)
-- [ ] 4.4 Implementar card "Próxima ativação" na Home, com atalho para o detalhe
-- [ ] 4.5 Instrumentar eventos `calendar_filter_applied`, `event_viewed`, `rsvp_confirmed`, `rsvp_cancelled`, `next_event_card_tapped`
+- [ ] 4.4 Implementar ação "Fazer inscrição" (link externo) para ativações de terceiros
+- [ ] 4.5 Implementar card "Próxima ativação" na Home, com atalho para o detalhe
+- [ ] 4.6 Instrumentar eventos `calendar_filter_applied`, `event_viewed`, `rsvp_confirmed`, `rsvp_cancelled`, `next_event_card_tapped`
 
 ## 5. Benefícios de parceiros (`partner-benefits`)
 
 - [ ] 5.1 Implementar listagem de benefícios com filtro por categoria
-- [ ] 5.2 Implementar tela de detalhe com código de desconto e ação de copiar
-- [ ] 5.3 Implementar card "Parceiro em destaque" na Home, com atalho para o detalhe
-- [ ] 5.4 Instrumentar eventos `benefits_filter_applied`, `benefit_viewed`, `benefit_code_copied`, `featured_benefit_card_tapped`
+- [ ] 5.2 Implementar tela de detalhe com código de desconto e ação de copiar (benefícios do tipo `code`)
+- [ ] 5.3 Implementar montagem e abertura do link de referral com identificador do associado (benefícios do tipo `referral_link`)
+- [ ] 5.4 Implementar card "Parceiro em destaque" na Home, com atalho para o detalhe
+- [ ] 5.5 Instrumentar eventos `benefits_filter_applied`, `benefit_viewed`, `benefit_code_copied`, `benefit_referral_opened`, `featured_benefit_card_tapped`
 
 ## 6. Loja exclusiva (`club-store`)
 

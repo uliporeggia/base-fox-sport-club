@@ -2,12 +2,53 @@ schema: spec-driven
 
 # Project context (optional)
 # This is shown to AI when creating artifacts.
-# Add your tech stack, conventions, style guides, domain knowledge, etc.
-# Example:
-#   context: |
-#     Tech stack: TypeScript, React, Node.js
-#     We use conventional commits
-#     Domain: e-commerce platform
+context: |
+  LEIA `BRIEFING.md` NA RAIZ DO REPOSITÓRIO antes de criar qualquer artefato.
+  É o ponto de partida da implementação e consolida o escopo fechado com o
+  cliente em 05/10/2026. O resumo abaixo não substitui a leitura.
+
+  Produto: Base Fox Sport Club — app mobile de um clube de associados para
+  corrida de rua, trilha e trekking. O clube não tem sede fixa: monta um
+  espaço VIP próprio dentro de eventos esportivos. Modelo: plano gratuito +
+  plano de membro pago, tendo o acesso ao espaço VIP como gancho de conversão.
+
+  Fonte de verdade de UI e escopo: `design/Base Fox - Mockup MVP-print.dc.html`
+  (15 telas; inventário e paleta em `design/README.md`). Onde um documento
+  divergir do mockup, o mockup vence.
+
+  ATENÇÃO — a change `openspec/changes/the-crew-mvp/` está DESATUALIZADA:
+  foi escrita antes da reunião de 05/10, com a marca antiga ("The Crew") e
+  escopo vencido. Suas decisões de ARQUITETURA continuam válidas; escopo,
+  marca e capabilities não. Não derive specs novas a partir dela.
+
+  Restrições duras:
+  - Nenhuma menção a "Kailash", "XKR" ou "KTR" em qualquer lugar visível
+    (copy, logos, metadados de loja, nome do pacote, e-mails). O Base Fox
+    precisa parecer marca independente — é requisito do cliente.
+  - Nenhum preço em reais, em lugar nenhum (copy, seed data, mocks, testes).
+    A mensalidade não foi definida.
+
+  Fora do MVP: loja/catálogo de produtos (capability `club-store` está MORTA,
+  cortada em 05/10), checkout/gateway de pagamento, app do host / leitor de
+  QR code, mapa/geolocalização, gamificação.
+
+  QR code são DOIS escopos com o mesmo nome — não confundir:
+  - DENTRO do MVP: o associado gera e exibe seu QR de acesso ao espaço VIP.
+  - FORA do MVP: o leitor/validação do lado do host (fase 2).
+
+  Membership fica atrás de feature flag remota, desligável sem novo build
+  (pedido explícito do cliente). No piloto ela nasce DESLIGADA: todos navegam
+  como se fossem membros, sem telas órfãs nem caminhos mortos.
+
+  Navegação: tab bar de 5 abas — Início, Eventos, Espaço VIP, Benefícios,
+  Perfil. A UI diz "Eventos", não "Ativações".
+
+  Stack fixada (não re-decidir): React Native + Expo (managed), Firebase
+  (Firestore + Auth + Cloud Functions), camada de repositório obrigatória
+  entre telas e Firestore, modelagem achatada no Firestore, Firebase
+  Analytics + Sentry para observabilidade.
+
+  Idioma: specs, propostas e copy de UI em português do Brasil.
 
 # Per-artifact rules (optional)
 # Add custom rules for specific artifacts.

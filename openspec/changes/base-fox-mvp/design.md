@@ -69,15 +69,15 @@ Requisito literal do cliente em 05/10: *"suporte para a assinatura oculto — ni
 
 Sete pontos da UI dependem do estado de membership:
 
-| Tela | Flag ligada, plano gratuito | Flag desligada |
-| --- | --- | --- |
-| `03` Torne-se membro | passo pulável do fluxo de entrada | sai do fluxo |
-| `04` banner "Torne-se membro" | visível | oculto |
-| `06` detalhe do evento | variante gratuito | sempre variante membro |
-| `07` hub VIP | variante bloqueada | inalcançável |
-| `09`/`10` benefícios | desconto mascarado `••% OFF` | desconto sempre visível |
-| `12` paywall contextual | alcançável pelo cupom bloqueado | inalcançável (cupom abre `11` direto) |
-| `13` assinatura confirmada | alcançável | inalcançável |
+| Tela                          | Flag ligada, plano gratuito       | Flag desligada                        |
+| ----------------------------- | --------------------------------- | ------------------------------------- |
+| `03` Torne-se membro          | passo pulável do fluxo de entrada | sai do fluxo                          |
+| `04` banner "Torne-se membro" | visível                           | oculto                                |
+| `06` detalhe do evento        | variante gratuito                 | sempre variante membro                |
+| `07` hub VIP                  | variante bloqueada                | inalcançável                          |
+| `09`/`10` benefícios          | desconto mascarado `••% OFF`      | desconto sempre visível               |
+| `12` paywall contextual       | alcançável pelo cupom bloqueado   | inalcançável (cupom abre `11` direto) |
+| `13` assinatura confirmada    | alcançável                        | inalcançável                          |
 
 Se cada tela testar a flag por conta própria, são sete lugares para errar, e um `if` esquecido vira tela órfã em produção. A decisão é concentrar isso num **único valor derivado**:
 
@@ -135,6 +135,32 @@ Push entra no MVP (decisão de 13/10). Três decisões:
 
 **Disparo por Cloud Function em trigger do Firestore**, espelhando os três tipos que o mockup já mostra na tela `14`: evento novo com espaço VIP, presença confirmada, e nova parceria. Cada notificação disparada **também** é escrita em `notifications` — a caixa de entrada in-app é a fonte de verdade do histórico, e não depende de o push ter sido entregue. Isso mantém a tela `14` correta para quem negou a permissão.
 
+### Strava: API paga e com teto de atletas, a partir de 2026
+
+A change anterior tratou o Strava como integração gratuita e sem limite. **Essa premissa está vencida** — o Strava Developer Program mudou em 2026 e impõe duas restrições que afetam o lançamento, não só o orçamento:
+
+**1. A API exige assinatura paga do Strava.** Obrigatória desde 01/06/2026 para desenvolvedores novos no Standard Tier. Apps no Extended Access (10.000+ atletas conectados) são isentos. É um custo recorrente da conta de desenvolvedor, não do app.
+
+**2. O teto de atletas conectados começa em 1.**
+
+```
+  App novo         Auto-upgrade        Standard          Extended
+  ────────         ────────────        ────────          ────────
+  1 atleta   ──▶   10 atletas   ──▶    até 9.999   ──▶   10.000+
+                   (sem review)        (review do        (isento da
+                                        Strava)           assinatura)
+```
+
+O cadastro por Strava é caminho de primeira classe na spec `associate-onboarding`. Com o teto padrão, **o 11º associado não consegue se cadastrar por Strava** — a tela `02` ofereceria um botão que falha. O aumento acima de 10 depende de review do Strava, sem SLA publicado e com relatos recorrentes de pedidos sem resposta.
+
+Consequências para a implementação:
+
+- **Solicitar o aumento de capacidade é tarefa de provisionamento, não de véspera.** Entra junto com o Firebase, não com o build de distribuição.
+- **O cadastro por Strava precisa degradar com elegância.** Quando a API recusar a conexão por teto atingido, o app SHALL manter o cadastro por e-mail disponível e explicar que a conexão com o Strava está indisponível no momento — nunca apresentar como falha do app. Enquanto o aumento não sair, essa é a diferença entre um piloto que funciona e um que trava na segunda tela.
+- **O teto é de atletas conectados, não de associados.** Só conta quem usa o Strava; quem se cadastra por e-mail não ocupa vaga.
+
+**3. Limite de cache de 7 dias.** A política do Strava restringe o armazenamento de dados da API a sete dias. O modelo de dados guarda `strava.athlete_id` e `username` em `associates` indefinidamente, e importa nome e foto no cadastro. Isso provavelmente se enquadra como dado de perfil do próprio usuário autenticado, e não como cache de dados de atividade — mas **é uma premissa a confirmar na política vigente antes do lançamento**, não uma certeza. Se não se enquadrar, a saída é guardar só o `athlete_id` como chave de vínculo e reconsultar o resto.
+
 ### Perfil: edição mínima de nome e foto
 
 A tela `15` tem duas linhas sem tela desenhada. Decisões:
@@ -146,16 +172,16 @@ A tela `15` tem duas linhas sem tela desenhada. Decisões:
 
 Coleções achatadas, com os ajustes do escopo de 05/10:
 
-| Coleção | Campos relevantes |
-| --- | --- |
-| `associates` | `name`, `email`, `photo_url`, `member_number`, `joined_at`, `membership: { status: free \| member, source, started_at }`, `strava: { connected, athlete_id, username }` |
-| `events` | `name`, `modality` (`corrida` \| `trilha` \| `trekking`), `distance`, `starts_at`, `location`, `description`, `organizer` (`base_fox` \| `third_party`), `has_vip`, `vip_window`, `vip_perks[]` |
-| `rsvps` | `associate_id`, `event_id`, `confirmed_at` |
-| `benefits` | `partner`, `category`, `discount`, `description`, `code`, `external_url`, `usage_note`, `valid_until`, `status` (`active` \| `coming_soon`) |
-| `vip_accesses` | `associate_id`, `event_id`, `issued_at`, `expires_at`, `revoked_at` |
-| `notifications` | `associate_id`, `type`, `title`, `body`, `created_at`, `read_at` |
-| `devices` | `associate_id`, `push_token`, `platform`, `updated_at` |
-| `config` | `app` (flags), `counters` (número de associado) |
+| Coleção         | Campos relevantes                                                                                                                                                                               |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `associates`    | `name`, `email`, `photo_url`, `member_number`, `joined_at`, `membership: { status: free \| member, source, started_at }`, `strava: { connected, athlete_id, username }`                         |
+| `events`        | `name`, `modality` (`corrida` \| `trilha` \| `trekking`), `distance`, `starts_at`, `location`, `description`, `organizer` (`base_fox` \| `third_party`), `has_vip`, `vip_window`, `vip_perks[]` |
+| `rsvps`         | `associate_id`, `event_id`, `confirmed_at`                                                                                                                                                      |
+| `benefits`      | `partner`, `category`, `discount`, `description`, `code`, `external_url`, `usage_note`, `valid_until`, `status` (`active` \| `coming_soon`)                                                     |
+| `vip_accesses`  | `associate_id`, `event_id`, `issued_at`, `expires_at`, `revoked_at`                                                                                                                             |
+| `notifications` | `associate_id`, `type`, `title`, `body`, `created_at`, `read_at`                                                                                                                                |
+| `devices`       | `associate_id`, `push_token`, `platform`, `updated_at`                                                                                                                                          |
+| `config`        | `app` (flags), `counters` (número de associado)                                                                                                                                                 |
 
 `products` **não existe** — morreu com a loja.
 
@@ -169,17 +195,17 @@ Duas notas de modelagem:
 
 Base da change anterior, **sem** os eventos de Loja e **com** os de membership, VIP e push:
 
-| Domínio | Eventos | Params |
-| --- | --- | --- |
-| Onboarding | `onboarding_step_view`, `onboarding_skipped` | `step` |
-| Autenticação | `sign_up` *(reservado)*, `login` *(reservado)*, `logout` | `method`: `email` \| `strava` |
-| Início | `home_viewed`, `next_event_card_tapped`, `vip_teaser_tapped` | `event_id` |
-| Membership | `paywall_viewed`, `membership_cta_tapped`, `subscription_confirmed`, `membership_declined` | `source`: `entry_flow` \| `home_banner` \| `event_detail` \| `vip_hub` \| `benefit_detail` |
-| Eventos | `events_filter_applied`, `event_viewed`, `rsvp_confirmed`, `rsvp_cancelled` | `filter_modality`, `event_id`, `modality`, `has_vip` |
-| Espaço VIP | `vip_hub_viewed`, `vip_access_generated`, `vip_qr_viewed` | `event_id`, `has_access` |
-| Benefícios | `benefits_filter_applied`, `benefit_viewed`, `benefit_code_copied`, `benefit_link_opened` | `category`, `benefit_id`, `partner`, `locked` |
-| Strava | `strava_connected`, `strava_disconnected` | `source`: `sign_up` \| `profile` |
-| Notificações | `notifications_viewed`, `notifications_marked_read`, `push_permission_result` | `unread_count`, `granted` |
+| Domínio      | Eventos                                                                                    | Params                                                                                     |
+| ------------ | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------ |
+| Onboarding   | `onboarding_step_view`, `onboarding_skipped`                                               | `step`                                                                                     |
+| Autenticação | `sign_up` *(reservado)*, `login` *(reservado)*, `logout`                                   | `method`: `email` \| `strava`                                                              |
+| Início       | `home_viewed`, `next_event_card_tapped`, `vip_teaser_tapped`                               | `event_id`                                                                                 |
+| Membership   | `paywall_viewed`, `membership_cta_tapped`, `subscription_confirmed`, `membership_declined` | `source`: `entry_flow` \| `home_banner` \| `event_detail` \| `vip_hub` \| `benefit_detail` |
+| Eventos      | `events_filter_applied`, `event_viewed`, `rsvp_confirmed`, `rsvp_cancelled`                | `filter_modality`, `event_id`, `modality`, `has_vip`                                       |
+| Espaço VIP   | `vip_hub_viewed`, `vip_access_generated`, `vip_qr_viewed`                                  | `event_id`, `has_access`                                                                   |
+| Benefícios   | `benefits_filter_applied`, `benefit_viewed`, `benefit_code_copied`, `benefit_link_opened`  | `category`, `benefit_id`, `partner`, `locked`                                              |
+| Strava       | `strava_connected`, `strava_disconnected`                                                  | `source`: `sign_up` \| `profile`                                                           |
+| Notificações | `notifications_viewed`, `notifications_marked_read`, `push_permission_result`              | `unread_count`, `granted`                                                                  |
 
 Três notas:
 
@@ -202,6 +228,9 @@ Tab bar de 5 abas — **Início · Eventos · Espaço VIP · Benefícios · Perf
 - **[Risco] QR sem assinatura criptográfica pode ser fotografado e reapresentado por terceiro.** → **Mitigação**: aceito no piloto, onde a conferência é visual e o QR traz o nome do associado — quem apresenta precisa bater com quem está escrito. O HMAC é aditivo ao payload (`v: 2`) quando o leitor da fase 2 existir.
 - **[Risco] A flag de membership desligada esconde todo o funil comercial, inclusive dos dados.** → **Mitigação**: `paywall_viewed` e `subscription_confirmed` não disparam no piloto por definição, então não haverá baseline de conversão antes de ligar a flag. Registrar essa expectativa com o cliente, para que a ausência de dados não seja lida como falha de instrumentação.
 - **[Risco] Permissão de push negada é praticamente irreversível no iOS.** → **Mitigação**: pedido tardio, após o primeiro RSVP; a caixa in-app (`14`) continua completa para quem negou, então nenhuma informação se perde.
+- **[Risco] O teto de 10 atletas conectados do Strava trava o cadastro por Strava já no piloto.** → **Mitigação**: solicitar o aumento de capacidade no provisionamento, não na véspera; e fazer o cadastro por Strava degradar com elegância para o cadastro por e-mail quando a API recusar por teto. Sem SLA do Strava, a degradação é a única mitigação sob nosso controle.
+- **[Risco] A assinatura paga do Strava é um custo recorrente que a change anterior não previa.** → **Mitigação**: valor baixo frente ao orçamento, mas precisa estar no levantamento de custos entregue ao cliente e vinculado a uma conta de desenvolvedor com dono definido — a mesma pendência de titularidade da App Store.
+- **[Risco] O limite de cache de 7 dias do Strava pode conflitar com guardar nome, foto e username em `associates`.** → **Mitigação**: confirmar o enquadramento na política vigente antes do lançamento; se não couber, guardar apenas o `athlete_id` como chave de vínculo.
 - **[Risco] A chave APNs depende de uma conta paga do Apple Developer cuja titularidade não foi decidida.** → **Mitigação**: push é a última capability na ordem das tarefas; tudo antes dela roda em Android e em dev build iOS. Mas a decisão precisa sair antes do primeiro build de distribuição — está no caminho crítico, não na cauda.
 - **[Risco] Dev client desde o início elimina o Expo Go, encarecendo o setup de qualquer pessoa nova no projeto.** → **Mitigação**: é consequência inevitável de Analytics + push; o custo é um build de dev client por plataforma, reaproveitável.
 - **[Risco] Modelagem achatada pode não ser o padrão de leitura mais eficiente no Firestore para todos os casos.** → **Mitigação**: modelar sobre os padrões de leitura que o mockup já exibe, sem especular além; revisitar só se o piloto expuser problema real.

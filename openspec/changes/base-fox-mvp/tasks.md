@@ -7,7 +7,9 @@
 - [ ] 1.5 Configurar navegação com a tab bar de 5 abas (Início, Eventos, Espaço VIP, Benefícios, Perfil), com a aba central elevada conforme `design/BFTabBar.dc.html`, e as pilhas de detalhe por aba
 - [ ] 1.6 Criar a camada de repositório por domínio (`associatesRepository`, `eventsRepository`, `benefitsRepository`, `vipAccessRepository`, `notificationsRepository`, `configRepository`) como único ponto de acesso ao Firestore
 - [ ] 1.7 Modelar as coleções Firestore de forma achatada (`associates`, `events`, `rsvps`, `benefits`, `vip_accesses`, `notifications`, `devices`, `config`) conforme a tabela do `design.md`
-- [ ] 1.8 Escrever as regras de segurança do Firestore — cada associado lê e escreve só os próprios dados; eventos e benefícios são somente leitura para o app
+- [ ] 1.8 Solicitar ao Strava o aumento de capacidade de atletas conectados (o padrão é 1, com auto-upgrade para 10) — depende de review sem SLA, então sai no provisionamento, não na véspera
+- [ ] 1.9 Configurar orçamento e alertas de billing no Google Cloud — o Blaze não tem teto por padrão
+- [ ] 1.10 Escrever as regras de segurança do Firestore — cada associado lê e escreve só os próprios dados; eventos e benefícios são somente leitura para o app
 
 ## 2. Observabilidade (base)
 
@@ -35,6 +37,7 @@
 - [ ] 4.2 Implementar a persistência do onboarding já visto, para não reexibi-lo
 - [ ] 4.3 Implementar o cadastro por e-mail e senha (02) com validação de nome, e-mail e senha de no mínimo 8 caracteres, e tratamento de e-mail já cadastrado
 - [ ] 4.4 Implementar cadastro e login via Strava OAuth, com importação de nome e foto e tratamento de autorização recusada
+- [ ] 4.4a Implementar a degradação elegante do cadastro por Strava quando a API recusar por teto de atletas atingido — mantém o cadastro por e-mail e explica a indisponibilidade, sem apresentar como falha do app
 - [ ] 4.5 Implementar a tela de login alcançada por "Já tem conta? Entrar", reutilizando a identidade visual da tela de cadastro, com mensagem de credenciais inválidas que não revela qual campo está errado
 - [ ] 4.6 Implementar a sessão persistente e o roteamento de abertura (onboarding, cadastro ou Início)
 - [ ] 4.7 Implementar a tela Início (04) com saudação, sino de notificações no cabeçalho e a composição dos blocos de próximo evento e espaço VIP

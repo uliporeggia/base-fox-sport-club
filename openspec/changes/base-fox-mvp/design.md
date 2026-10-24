@@ -135,6 +135,74 @@ Push entra no MVP (decisão de 13/10). Três decisões:
 
 **Disparo por Cloud Function em trigger do Firestore**, espelhando os três tipos que o mockup já mostra na tela `14`: evento novo com espaço VIP, presença confirmada, e nova parceria. Cada notificação disparada **também** é escrita em `notifications` — a caixa de entrada in-app é a fonte de verdade do histórico, e não depende de o push ter sido entregue. Isso mantém a tela `14` correta para quem negou a permissão.
 
+### Autenticação: três caminhos, e o e-mail como chave de recuperação
+
+O cadastro por Strava cria uma conta **sem senha**. Enquanto o Strava for a única credencial dessa pessoa, qualquer indisponibilidade da API — teto de atletas atingido, review pendente, conta da aplicação trocada — deixa de ser degradação de funcionalidade e vira **tranca na própria conta** ao reinstalar o app ou trocar de aparelho.
+
+Agrava isso o fato de que **o Strava removeu o e-mail da API em janeiro de 2019** e nenhum escopo atual o devolve. Um associado cadastrado só por Strava não teria, por padrão, nenhum dado de contato no sistema — portanto nenhum canal de recuperação.
+
+Decisão, em três partes:
+
+**1. E-mail obrigatório em todos os caminhos de cadastro**, inclusive no cadastro por Strava, onde precisa ser digitado pelo associado por não vir da API. Verificado por e-mail de confirmação.
+
+**2. Senha opcional.** Pedir senha num cadastro de um toque desfaz a vantagem do Strava. Quem quiser define no cadastro ou depois, no Perfil.
+
+**3. Login por link de e-mail como terceiro caminho de entrada.** É o que torna a senha *genuinamente* opcional:
+
+```
+   Strava            rápido, mas sujeito ao teto de atletas
+   E-mail + senha    para quem definiu senha
+   Link por e-mail   rede de segurança — sempre funciona
+```
+
+Sem o terceiro caminho, "senha opcional" é uma armadilha: quem pula a senha — que será a maioria, por ser o caminho de menor atrito — continua com o Strava como credencial única, e o problema persiste inteiro. O Firebase Auth oferece o provedor de link por e-mail nativamente; o custo é habilitá-lo, tratar o deep link de retorno e uma tela.
+
+**Consequência extra, não planejada mas valiosa:** com e-mail obrigatório nos dois caminhos de cadastro, ele vira **chave de reconciliação entre eles**. Sem isso, a mesma pessoa que se cadastra pelo Strava e depois tenta entrar pelo e-mail vira dois associados, com dois números e dois históricos de presença. Num clube, onde as pessoas trocam de celular e tentam "do outro jeito", essa colisão aconteceria no piloto.
+
+Nota de implementação: **definir** uma senha numa conta que não tem nenhuma é operação mais leve que **trocar** uma existente — é o que permite oferecê-la no Perfil, apesar de a edição de e-mail e senha estar fora desta versão. Ainda assim pode exigir login recente; confirmar antes de prometer o fluxo ao associado.
+
+### Titularidade: Oreggia Tech publica, com contas pessoais
+
+Decidido em 18/10/2026, encerrando a pendência que vinha do briefing §8.
+
+**Quem publica: Oreggia Tech**, com **contas pessoais** na Apple e no Google Play — não contas de organização. A troca que isso representa:
+
+| | Organização | Pessoal (escolhido) |
+| --- | --- | --- |
+| D-U-N-S | até 30 dias, bloqueia as duas lojas | não exige |
+| Apple — matrícula | 2 a 4 semanas | 24 a 48 horas |
+| Google Play — 12 testadores × 14 dias | isento | obrigatório |
+| Nome exibido na ficha | Oreggia Tech | nome legal pessoal |
+
+O ganho decisivo é o iOS: TestFlight destravado em dois dias em vez de um mês, sem depender do D-U-N-S. O custo é a regra dos 12 testadores do Google Play, que se aplica a contas pessoais criadas após 13/11/2023.
+
+**Essa regra não é um bloqueio sequencial, e tratá-la como tal é o erro a evitar.** O relógio de 14 dias corridos começa quando o Google aprova a versão de teste fechado e 12 pessoas aderem — não exige app pronto. Uma build incompleta mas instalável já inicia a contagem. Logo: **subir algo para teste fechado cedo é tarefa de começo de projeto**, paralela ao desenvolvimento, não de véspera. Quem sai e volta reinicia a própria contagem, então os testadores precisam ser avisados a não desinstalar.
+
+O recrutamento dos 12 é o problema mais fácil do projeto: o cliente é dono de um clube de corrida.
+
+### Conta do Strava: dedicada, e escolhida de uma vez
+
+Uma aplicação de API do Strava vive numa **conta pessoal de atleta** — não existe conta de organização — e vale **uma chave por conta**. Não há mecanismo documentado de transferência entre contas.
+
+Decisão: **criar uma conta Strava dedicada**, com e-mail da Oreggia Tech, em vez de usar uma conta pessoal de corrida. A assinatura paga fica nela, e uma eventual passagem do projeto ao cliente se dá por entrega de credenciais — que é o único caminho possível na ausência de transferência.
+
+A escolha é irreversível na prática, e o motivo não é o que parece. Trocar de conta depois significa **nova aplicação, novo `client_id`**, e portanto:
+
+| Consequência | Gravidade |
+| --- | --- |
+| Todos os tokens emitidos morrem — tokens são por `client_id` | recuperável: um toque em "Conectar" |
+| Associados precisam reautorizar | recuperável |
+| Associados são deslogados do app | **não acontece** — a sessão é Firebase Auth, não Strava |
+| Contas duplicadas após reautorizar | **não acontece** — o `athlete_id` é global do Strava, reconcilia no mesmo registro |
+| Nova publicação nas lojas | **evitável** — ver decisão abaixo |
+| **A aprovação de capacidade não acompanha** | **o custo real**: volta-se ao teto de 10 e à fila de review, sem prazo |
+
+A última linha é a que trava: a aprovação é concedida à aplicação, não ao desenvolvedor. Por isso a conta precisa estar escolhida **antes** do pedido de capacidade.
+
+**O `client_id` do Strava fica em `config/app`, lido pelo `configRepository`** — o mesmo documento e a mesma camada da flag de membership. O `client_secret` é exclusivamente de servidor, usado na troca de código por token dentro de uma Cloud Function, e nunca embarcado no app.
+
+Isso transforma "trocar a aplicação do Strava" de **nova publicação com review de loja** em **edição de um campo no console do Firestore**. É a mesma lógica da camada de repositório: proteção barata paga hoje contra uma troca que já se sabe possível. Cravar o `client_id` no binário custaria o mesmo para escrever e um build mais a review da App Store para desfazer.
+
 ### Strava: API paga e com teto de atletas, a partir de 2026
 
 A change anterior tratou o Strava como integração gratuita e sem limite. **Essa premissa está vencida** — o Strava Developer Program mudou em 2026 e impõe duas restrições que afetam o lançamento, não só o orçamento:
@@ -181,7 +249,7 @@ Coleções achatadas, com os ajustes do escopo de 05/10:
 | `vip_accesses`  | `associate_id`, `event_id`, `issued_at`, `expires_at`, `revoked_at`                                                                                                                             |
 | `notifications` | `associate_id`, `type`, `title`, `body`, `created_at`, `read_at`                                                                                                                                |
 | `devices`       | `associate_id`, `push_token`, `platform`, `updated_at`                                                                                                                                          |
-| `config`        | `app` (flags), `counters` (número de associado)                                                                                                                                                 |
+| `config`        | `app` (flag de membership, `client_id` do Strava), `counters` (número de associado)                                                                                                                                                 |
 
 `products` **não existe** — morreu com a loja.
 
@@ -228,6 +296,8 @@ Tab bar de 5 abas — **Início · Eventos · Espaço VIP · Benefícios · Perf
 - **[Risco] QR sem assinatura criptográfica pode ser fotografado e reapresentado por terceiro.** → **Mitigação**: aceito no piloto, onde a conferência é visual e o QR traz o nome do associado — quem apresenta precisa bater com quem está escrito. O HMAC é aditivo ao payload (`v: 2`) quando o leitor da fase 2 existir.
 - **[Risco] A flag de membership desligada esconde todo o funil comercial, inclusive dos dados.** → **Mitigação**: `paywall_viewed` e `subscription_confirmed` não disparam no piloto por definição, então não haverá baseline de conversão antes de ligar a flag. Registrar essa expectativa com o cliente, para que a ausência de dados não seja lida como falha de instrumentação.
 - **[Risco] Permissão de push negada é praticamente irreversível no iOS.** → **Mitigação**: pedido tardio, após o primeiro RSVP; a caixa in-app (`14`) continua completa para quem negou, então nenhuma informação se perde.
+- **[Risco] O teto do Strava não bloqueia só cadastros novos — tranca associados existentes para fora da própria conta.** Quem se cadastrou por Strava e não definiu senha tem o Strava como credencial única; se a autorização falhar por teto, não consegue entrar ao reinstalar o app ou trocar de aparelho. → **Mitigação**: e-mail obrigatório no cadastro e login por link de e-mail como terceiro caminho de entrada, que funciona independente do Strava.
+- **[Risco] A regra dos 12 testadores do Google Play vira bloqueio sequencial se tratada como tarefa de véspera.** → **Mitigação**: subir uma build instalável para teste fechado no começo do projeto, para que o relógio de 14 dias rode em paralelo ao desenvolvimento. Avisar os testadores a não desinstalar — sair e voltar reinicia a contagem individual.
 - **[Risco] O teto de 10 atletas conectados do Strava trava o cadastro por Strava já no piloto.** → **Mitigação**: solicitar o aumento de capacidade no provisionamento, não na véspera; e fazer o cadastro por Strava degradar com elegância para o cadastro por e-mail quando a API recusar por teto. Sem SLA do Strava, a degradação é a única mitigação sob nosso controle.
 - **[Risco] A assinatura paga do Strava é um custo recorrente que a change anterior não previa.** → **Mitigação**: valor baixo frente ao orçamento, mas precisa estar no levantamento de custos entregue ao cliente e vinculado a uma conta de desenvolvedor com dono definido — a mesma pendência de titularidade da App Store.
 - **[Risco] O limite de cache de 7 dias do Strava pode conflitar com guardar nome, foto e username em `associates`.** → **Mitigação**: confirmar o enquadramento na política vigente antes do lançamento; se não couber, guardar apenas o `athlete_id` como chave de vínculo.
@@ -255,8 +325,9 @@ Rollback de qualquer passo é a operação inversa da flag, exceto a fase 2, que
 
 - **Onde o valor da flag de membership fica guardado?** As duas opções vivas: documento `config/app` no Firestore lido pelo `configRepository` (nenhuma dependência nativa nova, cliente liga pelo console, já respeita a camada de repositório obrigatória) ou **Firebase Remote Config** (produto feito para flags, com rollout por porcentagem e segmentação por audiência que ninguém pediu, e um segundo mecanismo de configuração convivendo com o Firestore). Não bloqueia nenhuma tarefa — o `configRepository` esconde a origem — e deve ser resolvido ao provisionar o Firebase. Variável de ambiente no build EAS já está descartada: viola o requisito de desligar sem novo build.
 - **Projeto Firebase único ou separado por ambiente** (dev/staging/prod)?
+- **A conversão de conta Apple individual para organização vale a pena no futuro?** Hoje publicamos como pessoa física, o que expõe o nome legal pessoal na ficha da App Store. A Apple tem um processo de conversão, mas suas condições e prazo não foram verificados — e se for custoso, seriam duas matrículas de US$ 99. Reavaliar quando a marca Base Fox tiver tração.
+- **Definir senha numa conta sem senha exige login recente?** Decide se o fluxo de "definir senha" no Perfil pode ser oferecido direto ou precisa de etapa de confirmação. Confirmar na implementação antes de prometer o fluxo ao associado.
 - **Painel admin mínimo?** Eventos e benefícios são cadastrados à mão no piloto. Avaliar se o console do Firestore basta ou se vale um admin enxuto antes do lançamento.
-- **Titularidade da conta de publicação nas lojas e da infraestrutura Firebase** — Oreggia Tech ou cliente. O cliente só não quer aparecer como publicador. Agora com prazo: a chave APNs depende disso.
 - **Processador de pagamento.** Direção tentativa: **Mercado Pago**, conta do cliente (substituindo a hipótese anterior de Cielo/PagSeguro). Pendente de uma conversa técnica a três com o freelancer que integrou o site de inscrições do cliente (William). Restrição: o checkout não pode expor a marca Kailash nem o nome do cliente. Como não há cobrança na v1, não bloqueia nada agora.
 - **Preço da mensalidade** — não definido. Não assumir nenhum valor em nenhum artefato, mock ou teste.
 - **Destino real de uma futura migração de backend** (Postgres próprio, Supabase, outro)? Não precisa ser decidido agora — a camada de repositório já reduz o custo de decidir depois.

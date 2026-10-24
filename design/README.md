@@ -5,16 +5,16 @@ via MCP `claude_design` em 08/10/2026.
 
 ## Arquivos
 
-| Arquivo | Papel |
-| --- | --- |
-| `Base Fox - Mockup MVP-print.dc.html` | **Entrada.** Versão para impressão (7 páginas landscape) do mockup de telas. Gerado a partir de `Base Fox - Mockup MVP.dc.html` (ver `<meta name="omelette-print-source">`). |
+| Arquivo                                   | Papel                                                                                                                                                                                                                                                                                                                |
+| ----------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Base Fox - Mockup MVP-print.dc.html`     | **Entrada.** Versão para impressão (7 páginas landscape) do mockup de telas. Gerado a partir de `Base Fox - Mockup MVP.dc.html` (ver `<meta name="omelette-print-source">`).                                                                                                                                         |
 | `Base Fox - Tela 16 Editar dados.dc.html` | **Complemento local**, escrito em 13/10/2026 — não veio do Claude Design e não existe no projeto remoto. Tela 16 (editar dados pessoais), alcançada pelo item homônimo do Perfil, que no mockup original tinha chevron mas nenhuma tela de destino. Decisão registrada em `openspec/changes/base-fox-mvp/design.md`. |
-| `BFTabBar.dc.html` | Componente da tab bar, consumido via `<dc-import name="BFTabBar" active="…">`. Não listado no pedido original, mas obrigatório para o mockup renderizar. |
-| `doc-page.js` | Runtime do web component `<doc-page>` (paginação/print). Scaffold do Claude Design — não editar. |
-| `support.js` | Runtime `dc-` (parser `<x-dc>`, `DCLogic`, `sc-for`/`sc-if`, `dc-import`). Gerado — não editar. |
-| `assets/logo-basefox-white.png` | Logo completa, branca (990×675). |
-| `assets/logo-symbol-white.png` | Símbolo/ícone, branco (960×450). Usado na tab bar e no centro do QR code. |
-| `assets/espaco-vip.jpg` | Foto do espaço VIP (1527×783). Usada como `background-image` em 8 pontos. Não constava no pedido; só é referenciada via CSS `url()`. |
+| `BFTabBar.dc.html`                        | Componente da tab bar, consumido via `<dc-import name="BFTabBar" active="…">`. Não listado no pedido original, mas obrigatório para o mockup renderizar.                                                                                                                                                             |
+| `doc-page.js`                             | Runtime do web component `<doc-page>` (paginação/print). Scaffold do Claude Design — não editar.                                                                                                                                                                                                                     |
+| `support.js`                              | Runtime `dc-` (parser `<x-dc>`, `DCLogic`, `sc-for`/`sc-if`, `dc-import`). Gerado — não editar.                                                                                                                                                                                                                      |
+| `assets/logo-basefox-white.png`           | Logo completa, branca (990×675).                                                                                                                                                                                                                                                                                     |
+| `assets/logo-symbol-white.png`            | Símbolo/ícone, branco (960×450). Usado na tab bar e no centro do QR code.                                                                                                                                                                                                                                            |
+| `assets/espaco-vip.jpg`                   | Foto do espaço VIP (1527×783). Usada como `background-image` em 8 pontos. Não constava no pedido; só é referenciada via CSS `url()`.                                                                                                                                                                                 |
 
 Não importados (existem no projeto remoto e não são referenciados por este mockup):
 `Base Fox - Mockup MVP.dc.html` (fonte editável), `The Crew - Deck MVP`, `The Crew - Prototipo MVP`,
@@ -39,20 +39,24 @@ Para abrir, sirva o diretório por HTTP (os `<script src="./…">` e as fontes d
 Agrupadas por fluxo, como no mockup:
 
 **A — Entrada** (Onboarding → Cadastro → Torne-se membro *(pulável)* → Início)
+
 - `01` Onboarding, 3 passos — "O clube que vai até você", "Seu espaço VIP em cada evento", "Vantagens que crescem com o clube"
-- `02` Cadastro — Strava OAuth ou e-mail/senha
+- `02` Cadastro — Strava OAuth ou e-mail/senha. **Divergente desde 18/10:** o caminho Strava passa a exigir **e-mail digitado pelo visitante** (a API do Strava não devolve e-mail desde 01/2019) e a senha vira **opcional**. O mockup não desenha esse campo
 - `03` Torne-se membro — pitch do plano pago
 - `04` Início · plano gratuito
 
 **B — Eventos** (*hoje só eventos do clube — o card já prevê organizadores externos*)
+
 - `05` Eventos · lista — filtros Todos / Corrida / Trilha / Trekking
 - `06` Detalhe do evento — variantes **membro** e **plano gratuito**
 
 **C — Espaço VIP** (*o benefício-âncora — a aba que vende a assinatura*)
+
 - `07` Espaço VIP · hub — variantes **membro** e **plano gratuito (bloqueado)**
 - `08` Espaço VIP · QR code de acesso
 
 **D — Benefícios** (*1 parceiro real hoje (cupom de 15%) + vagas "Em breve"*)
+
 - `09` Benefícios · plano gratuito (desconto mascarado `••% OFF`)
 - `10` Benefícios · membro (15% OFF visível)
 - `11` Detalhe do benefício · cupom (membro)
@@ -60,9 +64,14 @@ Agrupadas por fluxo, como no mockup:
 - `13` Assinatura confirmada
 
 **E — Conta**
+
 - `14` Notificações — alcançada pelo **sino no cabeçalho da Home**, não por atalho no corpo da tela
 - `15` Perfil · membro — atenção: o item "Notificações" é um **interruptor**, não uma linha de navegação; "Assinatura" e "Editar dados pessoais" têm chevron; "Strava" tem ação de texto
-- `16` Editar dados pessoais — **fora do mockup original**, em arquivo próprio (ver tabela acima); só nome e foto, com e-mail e senha travados
+- `16` Editar dados pessoais — **fora do mockup original**, em arquivo próprio (ver tabela acima); nome e foto editáveis, e-mail travado, e a linha de senha com dois estados: “Definir uma senha” para quem não tem, travada para quem já tem
+
+**Sem tela desenhada** (alcançadas por link, não constam das 15)
+
+- Login — link “Já tem conta? Entrar” da tela `02`; reaproveita a identidade dela. Ganhou um terceiro caminho de entrada: **login por link de e-mail**, que é o que garante acesso a quem se cadastrou por Strava e não definiu senha
 
 Dados de exemplo (4 eventos, 3 parceiros "Em breve") e o QR code sintético ficam no
 `<script type="text/x-dc" data-dc-script>` no fim do arquivo.

@@ -3,7 +3,7 @@ schema: spec-driven
 # Project context (optional)
 # This is shown to AI when creating artifacts.
 context: |
-  LEIA `BRIEFING.md` NA RAIZ DO REPOSITÓRIO antes de criar qualquer artefato.
+  LEIA `openspec/changes/base-fox-mvp/BRIEFING.md` antes de criar qualquer artefato.
   É o ponto de partida da implementação e consolida o escopo fechado com o
   cliente em 05/10/2026. O resumo abaixo não substitui a leitura.
 
@@ -15,11 +15,6 @@ context: |
   Fonte de verdade de UI e escopo: `design/Base Fox - Mockup MVP-print.dc.html`
   (15 telas; inventário e paleta em `design/README.md`). Onde um documento
   divergir do mockup, o mockup vence.
-
-  ATENÇÃO — a change `openspec/changes/the-crew-mvp/` está DESATUALIZADA:
-  foi escrita antes da reunião de 05/10, com a marca antiga ("The Crew") e
-  escopo vencido. Suas decisões de ARQUITETURA continuam válidas; escopo,
-  marca e capabilities não. Não derive specs novas a partir dela.
 
   Restrições duras:
   - Nenhuma menção a "Kailash", "XKR" ou "KTR" em qualquer lugar visível

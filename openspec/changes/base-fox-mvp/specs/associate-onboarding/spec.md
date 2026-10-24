@@ -38,12 +38,42 @@ O sistema SHALL permitir criar uma conta informando nome, e-mail e senha, habili
 - **WHEN** o visitante submete um cadastro com um e-mail que já possui conta
 - **THEN** o sistema exibe uma mensagem informando que o e-mail já está em uso e oferece o caminho de entrar na conta existente
 
+### Requirement: E-mail obrigatório em todo cadastro
+O sistema SHALL exigir um endereço de e-mail em **todos** os caminhos de cadastro, inclusive no cadastro via Strava. A API do Strava não fornece o e-mail do atleta, portanto no cadastro via Strava ele SHALL ser informado pelo próprio visitante. O e-mail é o canal de recuperação de conta e a chave que reconcilia os caminhos de cadastro entre si.
+
+#### Scenario: E-mail pedido no cadastro via Strava
+- **WHEN** o visitante autoriza o acesso via Strava e o Strava não fornece e-mail
+- **THEN** o sistema solicita o e-mail ao visitante antes de concluir o cadastro, e não cria a conta sem ele
+
+#### Scenario: Verificação de e-mail
+- **WHEN** uma conta é criada por qualquer caminho de cadastro
+- **THEN** o sistema envia uma mensagem de verificação ao e-mail informado e registra o estado de verificação do endereço
+
+#### Scenario: E-mail não verificado sinalizado no Perfil
+- **WHEN** o associado com e-mail ainda não verificado abre a aba Perfil
+- **THEN** o sistema sinaliza a pendência e oferece reenviar a verificação
+
+### Requirement: Reconciliação de contas pelo e-mail
+O sistema SHALL tratar o e-mail como identificador único de associado entre os caminhos de cadastro, de modo que a mesma pessoa que entra ora pelo Strava ora por e-mail NÃO gere dois associados, com dois números e dois históricos.
+
+#### Scenario: Cadastro via Strava com e-mail já existente
+- **WHEN** o visitante se cadastra via Strava informando um e-mail que já pertence a um associado
+- **THEN** o sistema vincula a conta Strava ao associado existente em lugar de criar outro, preservando número de associado, presenças e estado de plano
+
+#### Scenario: Cadastro por e-mail de quem já entrou por Strava
+- **WHEN** o visitante tenta se cadastrar por e-mail e senha usando o e-mail de um associado criado via Strava
+- **THEN** o sistema reconhece a conta existente e oferece o caminho de entrar nela, em lugar de criar duplicata
+
 ### Requirement: Cadastro e login via Strava
-O sistema SHALL permitir criar conta e entrar usando a conta Strava do visitante via OAuth, importando nome e foto quando disponíveis, e marcando a conta como conectada ao Strava. Essa opção SHALL ser apresentada como alternativa ao cadastro por e-mail, e é opcional.
+O sistema SHALL permitir criar conta e entrar usando a conta Strava do visitante via OAuth, importando nome e foto quando disponíveis, e marcando a conta como conectada ao Strava. Essa opção SHALL ser apresentada como alternativa ao cadastro por e-mail, e é opcional. A senha SHALL ser opcional nesse caminho — o visitante pode defini-la no cadastro ou depois, no Perfil.
 
 #### Scenario: Cadastro com Strava
-- **WHEN** o visitante toca em "Cadastrar com Strava" na tela de cadastro e autoriza o acesso
+- **WHEN** o visitante toca em "Cadastrar com Strava" na tela de cadastro, autoriza o acesso e informa o e-mail
 - **THEN** o sistema cria a conta, importa nome e foto do Strava, marca a conta como conectada ao Strava, atribui um número de associado e leva o associado ao próximo passo do fluxo de entrada
+
+#### Scenario: Cadastro via Strava sem definir senha
+- **WHEN** o visitante conclui o cadastro via Strava sem definir uma senha
+- **THEN** o sistema cria a conta normalmente, e o associado permanece capaz de entrar pelo login por link de e-mail, sem depender do Strava
 
 #### Scenario: Autorização recusada no Strava
 - **WHEN** o visitante recusa a autorização na tela do Strava ou o fluxo OAuth é interrompido
@@ -67,6 +97,32 @@ O sistema SHALL permitir entrar com e-mail e senha a partir da tela de cadastro,
 #### Scenario: Credenciais incorretas
 - **WHEN** o e-mail não existe ou a senha está incorreta
 - **THEN** o sistema exibe uma mensagem de credenciais inválidas sem revelar qual dos dois campos está errado, e mantém o associado na tela de login
+
+### Requirement: Login por link de e-mail
+O sistema SHALL oferecer a entrada por link enviado ao e-mail do associado, como terceiro caminho de autenticação, ao lado do Strava e da senha. Esse caminho SHALL funcionar independentemente da disponibilidade da API do Strava e da existência de senha na conta — é o que torna a senha genuinamente opcional e garante que nenhum associado fique trancado fora da própria conta.
+
+#### Scenario: Entrar por link de e-mail
+- **WHEN** o associado informa seu e-mail na tela de login e escolhe entrar por link
+- **THEN** o sistema envia um link de acesso ao e-mail e, ao ser aberto no dispositivo, autentica o associado e o leva para a tela Início
+
+#### Scenario: Conta sem senha e sem Strava disponível
+- **WHEN** um associado que se cadastrou via Strava, não definiu senha, e cuja autorização Strava falha por indisponibilidade ou teto de atletas, tenta entrar
+- **THEN** o sistema oferece a entrada por link de e-mail como caminho alternativo, e o associado consegue acessar sua conta
+
+#### Scenario: E-mail sem conta
+- **WHEN** é solicitado link de acesso para um e-mail que não possui conta
+- **THEN** o sistema responde sem revelar se o e-mail existe ou não, e não cria conta silenciosamente
+
+### Requirement: Definir senha a partir do Perfil
+O sistema SHALL permitir que um associado sem senha defina uma a partir do Perfil, passando a dispor do login por e-mail e senha. Esta versão NÃO SHALL permitir trocar uma senha já existente nem alterar o e-mail — ambos exigem reautenticação e ficam para depois.
+
+#### Scenario: Definir senha
+- **WHEN** um associado sem senha escolhe definir uma senha no Perfil e informa um valor com 8 caracteres ou mais
+- **THEN** o sistema passa a aceitar o login por e-mail e senha para esse associado
+
+#### Scenario: Associado que já tem senha
+- **WHEN** um associado que já possui senha abre o Perfil
+- **THEN** o sistema não oferece a ação de definir senha, porque trocar senha está fora desta versão
 
 ### Requirement: Sessão persistente
 O sistema SHALL manter a sessão do associado entre aberturas do app, levando-o direto para a tela Início enquanto houver sessão válida.

@@ -11,7 +11,7 @@ Um **levantamento de custos fixos de infraestrutura de terceiros** para operar o
 
 **Quem lê:** o cliente, que decide se banca a infraestrutura e em que conta ela fica.
 
-**O que o documento precisa conseguir:** que o cliente termine a leitura sabendo (a) que o custo de infraestrutura é marginal, (b) exatamente quando ele deixa de ser marginal, e (c) que existem três decisões dele travando o lançamento, nenhuma delas de dinheiro.
+**O que o documento precisa conseguir:** que o cliente termine a leitura sabendo (a) que o custo de infraestrutura é marginal, (b) exatamente quando ele deixa de ser marginal, e (c) que o que trava o lançamento não é dinheiro — e que há um item, só um, que depende de ação dele: arregimentar os 12 testadores do Google Play.
 
 ### Isto NÃO é uma proposta comercial
 
@@ -47,10 +47,10 @@ O documento conta três coisas, nesta ordem:
    1. O custo é marginal          2. E assim permanece         3. O que trava
       ~R$ 79/mês hoje                até ~25.000 usuários         não é dinheiro
             │                              │                           │
-   quase tudo cabe em           Firebase não é o                 3 decisões do
-   plano gratuito; sobram       gargalo — o custo só             cliente, todas
-   duas assinaturas anuais      sobe se adotarmos                de prazo e
-   obrigatórias                 atualização OTA                  titularidade
+   quase tudo cabe em           Firebase não é o                 prazos de loja
+   plano gratuito; sobram       gargalo — o custo só             e do Strava; só
+   duas assinaturas anuais      sobe se adotarmos                1 item depende
+   obrigatórias                 atualização OTA                  do cliente
 ```
 
 O erro a evitar é o documento soar como "é tudo de graça". Não é: há duas assinaturas obrigatórias, um limite técnico que trava o cadastro por Strava, e um plano de faturamento sem teto que exige alerta configurado. O tom é **"barato e previsível, desde que estas quatro coisas sejam feitas"**.
@@ -127,21 +127,33 @@ Sobre o Sentry, uma linha de sensibilidade: o limite de 5.000 erros/mês é ultr
 
 ### 4.5 O que trava, e não é dinheiro
 
-Seção curta e direta. São as decisões do cliente, e é o que o documento realmente precisa arrancar dele.
+Seção curta e direta. Nenhum destes é linha de orçamento, mas todos podem atrasar o lançamento mais que qualquer código.
 
-**a) Titularidade da conta de publicação.** O nome de quem publica **aparece publicamente na ficha das duas lojas**. Cruzando com a exigência de que o app pareça marca independente:
+**Titularidade — decidida em 18/10.** Quem publica é a **Oreggia Tech**, com **contas pessoais** nas duas lojas, e não contas de organização. A troca que isso representa:
 
-| Quem publica          | Consequência                                                                                   |
-| --------------------- | ---------------------------------------------------------------------------------------------- |
-| CNPJ atual do cliente | Expõe o vínculo com o grupo na ficha da loja — exatamente o que se quer evitar                 |
-| Oreggia Tech          | Funciona, mas o app fica atrelado à nossa conta; migrar depois exige processo de transferência |
-| Nova PJ "Base Fox"    | Coerente com a marca, mas custa CNPJ, D-U-N-S e prazo                                          |
+| | Organização | Pessoal (escolhido) |
+| --- | --- | --- |
+| D-U-N-S | até 30 dias, bloqueia as duas lojas | não exige |
+| Apple — matrícula | 2 a 4 semanas | 24 a 48 horas |
+| Google Play — 12 testadores | isento | obrigatório |
+| Nome exibido na ficha | Oreggia Tech | nome legal pessoal |
 
-Esta é a decisão mais consequente do documento inteiro. Ela define prazo, titularidade e a própria viabilidade da restrição de marca.
+O ganho decisivo é o iOS: TestFlight destravado em dois dias em vez de um mês, sem depender do D-U-N-S.
 
-**b) Teto de atletas do Strava.** A API libera **1 atleta conectado** por padrão, com auto-upgrade para **10**. Acima disso depende de aprovação do Strava, sem prazo publicado. Como o cadastro por Strava é um dos dois caminhos de entrada do app, **o 11º associado não conseguiria se cadastrar por lá** enquanto o aumento não sair. O pedido precisa ser feito no provisionamento, semanas antes do lançamento.
+No documento ao cliente isto entra como **informação**, não como pergunta — a decisão já está tomada e não depende dele. O que ele precisa saber é que a infraestrutura nasce sob a conta da Oreggia Tech e que uma eventual transferência futura é um processo à parte, a combinar quando fizer sentido.
 
-**c) Regra dos 12 testadores do Google Play.** Contas **pessoais** criadas após 13/11/2023 precisam de 12 testadores mantidos por 14 dias corridos antes de liberar a publicação pública. Contas de **organização** são isentas. O relógio só começa depois da aprovação da versão de teste. Depende diretamente da decisão (a).
+**a) Os 12 testadores do Google Play — e o cliente é quem resolve.** Contas pessoais criadas após 13/11/2023 precisam de 12 testadores mantidos por 14 dias corridos antes de liberar a publicação pública. O relógio só começa depois da aprovação da versão de teste e da adesão dos 12, e quem sai e volta reinicia a própria contagem.
+
+Dois pontos para o documento deixar claros, porque mudam a leitura de risco:
+
+- **Não é bloqueio sequencial.** O relógio roda em paralelo ao desenvolvimento, bastando uma build instalável ainda que incompleta. Por isso o teste fechado é tarefa de começo de projeto.
+- **É o pedido mais fácil que faremos a ele.** Arregimentar 12 pessoas de um clube de corrida que mantenham um app instalado por duas semanas é trivial para o cliente — e é o único item desta seção que depende de ação dele.
+
+**b) Teto de atletas do Strava.** A API libera **1 atleta conectado** por padrão, com auto-upgrade para **10**. Acima disso depende de aprovação do Strava, sem prazo publicado. Como o cadastro por Strava é um dos caminhos de entrada do app, o 11º associado não conseguiria se cadastrar por lá enquanto o aumento não sair — e associados que já dependem do Strava para entrar ficariam trancados fora da conta ao trocar de aparelho.
+
+O pedido já está na lista de tarefas a disparar antes de qualquer código. A mitigação sob nosso controle também está prevista: e-mail obrigatório no cadastro e login por link de e-mail, de modo que ninguém dependa exclusivamente do Strava para acessar a própria conta.
+
+**c) Review da App Store.** Dias, a cada build enviada. Entra no cronograma, não no orçamento.
 
 ### 4.6 Riscos de custo
 

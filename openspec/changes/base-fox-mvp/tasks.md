@@ -1,3 +1,15 @@
+## 0. Tarefas de espera — disparar antes de qualquer código
+
+Estas não custam esforço, custam **tempo de terceiro**. Nenhuma acelera com mais trabalho, e todas rodam em paralelo ao desenvolvimento. Atrasar o disparo delas atrasa o lançamento inteiro.
+
+- [ ] 0.1 Criar a conta Strava dedicada da Oreggia Tech (e-mail da empresa, não conta pessoal de corrida) e assinar o Strava — a assinatura é obrigatória para a API desde 06/2026 e fica atrelada à conta dona
+- [ ] 0.2 Registrar a aplicação Strava nessa conta e fazer o auto-upgrade para 10 atletas, disponível sem review
+- [ ] 0.3 Solicitar ao Strava o aumento de capacidade acima de 10 atletas — review sem SLA publicado; é o item de prazo mais imprevisível do projeto
+- [ ] 0.4 Matricular a Oreggia Tech no Apple Developer Program como **pessoa física** (24 a 48 h, sem D-U-N-S)
+- [ ] 0.5 Criar a conta **pessoal** no Google Play Console (US$ 25, taxa única)
+- [ ] 0.6 Recrutar os 12 testadores do teste fechado do Google Play, com o cliente, e avisá-los a não desinstalar o app — sair e voltar reinicia a contagem individual de 14 dias
+- [ ] 0.7 Subir ao teste fechado do Google Play a primeira build instalável, ainda que incompleta, para iniciar o relógio de 14 dias corridos em paralelo ao desenvolvimento
+
 ## 1. Setup do projeto e infraestrutura
 
 - [ ] 1.1 Inicializar o app Expo com React Native e TypeScript, usando um nome de pacote e identificadores que não contenham nenhuma menção a Kailash, XKR ou KTR
@@ -7,8 +19,8 @@
 - [ ] 1.5 Configurar navegação com a tab bar de 5 abas (Início, Eventos, Espaço VIP, Benefícios, Perfil), com a aba central elevada conforme `design/BFTabBar.dc.html`, e as pilhas de detalhe por aba
 - [ ] 1.6 Criar a camada de repositório por domínio (`associatesRepository`, `eventsRepository`, `benefitsRepository`, `vipAccessRepository`, `notificationsRepository`, `configRepository`) como único ponto de acesso ao Firestore
 - [ ] 1.7 Modelar as coleções Firestore de forma achatada (`associates`, `events`, `rsvps`, `benefits`, `vip_accesses`, `notifications`, `devices`, `config`) conforme a tabela do `design.md`
-- [ ] 1.8 Solicitar ao Strava o aumento de capacidade de atletas conectados (o padrão é 1, com auto-upgrade para 10) — depende de review sem SLA, então sai no provisionamento, não na véspera
 - [ ] 1.9 Configurar orçamento e alertas de billing no Google Cloud — o Blaze não tem teto por padrão
+- [ ] 1.9a Guardar o `client_id` do Strava em `config/app`, lido pelo `configRepository`, e manter o `client_secret` exclusivamente nas Cloud Functions
 - [ ] 1.10 Escrever as regras de segurança do Firestore — cada associado lê e escreve só os próprios dados; eventos e benefícios são somente leitura para o app
 
 ## 2. Observabilidade (base)
@@ -38,6 +50,10 @@
 - [ ] 4.3 Implementar o cadastro por e-mail e senha (02) com validação de nome, e-mail e senha de no mínimo 8 caracteres, e tratamento de e-mail já cadastrado
 - [ ] 4.4 Implementar cadastro e login via Strava OAuth, com importação de nome e foto e tratamento de autorização recusada
 - [ ] 4.4a Implementar a degradação elegante do cadastro por Strava quando a API recusar por teto de atletas atingido — mantém o cadastro por e-mail e explica a indisponibilidade, sem apresentar como falha do app
+- [ ] 4.4b Exigir e-mail no cadastro via Strava, informado pelo visitante — a API do Strava não devolve e-mail desde 01/2019
+- [ ] 4.4c Implementar a reconciliação de contas pelo e-mail entre os caminhos de cadastro, para que a mesma pessoa não vire dois associados
+- [ ] 4.4d Implementar o envio e o acompanhamento da verificação de e-mail, com sinalização de pendência no Perfil
+- [ ] 4.5a Implementar o login por link de e-mail como terceiro caminho de entrada, incluindo o tratamento do deep link de retorno — é o que torna a senha genuinamente opcional
 - [ ] 4.5 Implementar a tela de login alcançada por "Já tem conta? Entrar", reutilizando a identidade visual da tela de cadastro, com mensagem de credenciais inválidas que não revela qual campo está errado
 - [ ] 4.6 Implementar a sessão persistente e o roteamento de abertura (onboarding, cadastro ou Início)
 - [ ] 4.7 Implementar a tela Início (04) com saudação, sino de notificações no cabeçalho e a composição dos blocos de próximo evento e espaço VIP
@@ -85,6 +101,7 @@
 - [ ] 8.5 Implementar o item "Notificações" como interruptor de ligar e desligar o envio, refletindo a permissão negada no sistema operacional
 - [ ] 8.6 Desenhar a tela de edição de dados pessoais em `.dc.html`, seguindo a identidade visual do mockup, por não existir entre as 15 telas
 - [ ] 8.7 Implementar a tela de edição de nome e foto, sem campos de e-mail e senha, com validação de nome não vazio
+- [ ] 8.7a Implementar a ação de definir senha no Perfil para associados que não têm nenhuma, mantendo troca de senha e alteração de e-mail fora desta versão
 - [ ] 8.8 Implementar o encerramento de sessão com limpeza dos dados locais de autenticação e retorno à tela de cadastro
 - [ ] 8.9 Instrumentar `strava_connected`, `strava_disconnected` e `logout`
 - [ ] 8.10 Verificar que a tela Início não exibe nenhum banner ou convite de conexão com o Strava

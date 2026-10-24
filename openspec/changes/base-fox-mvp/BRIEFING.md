@@ -104,7 +104,7 @@ memória — as variantes (membro vs. gratuito) estão lá e mudam o comportamen
 
 ## 5. Decisões de arquitetura que permanecem
 
-Estas vieram de `openspec/changes/the-crew-mvp/design.md` e **continuam válidas**. Não re-decida:
+Estas vieram de `openspec/changes/archive/2026-10-13-the-crew-mvp/design.md` e **continuam válidas**. Não re-decida:
 
 - **App:** React Native + **Expo** (managed workflow). Alinhado ao stack da equipe; um código para
   iOS e Android.
@@ -204,9 +204,9 @@ compromisso assumido.
 | --- | --- |
 | `design/README.md` | Inventário das 15 telas, paleta, tipografia, divergências vs. a change antiga |
 | `design/Base Fox - Mockup MVP-print.dc.html` | Mockup final — fonte de verdade de UI |
-| `openspec/changes/the-crew-mvp/design.md` | Decisões de arquitetura (§5) e open questions originais |
-| `../../2026-10-05 Escopo Base Fox.txt` | Transcrição da reunião de fechamento de escopo |
-| `../../2026-09-04 MVP The Crew (1'10-37'11).txt` | Transcrição da reunião de apresentação do protótipo |
+| `openspec/changes/archive/2026-10-13-the-crew-mvp/design.md` | Decisões de arquitetura (§5) e open questions originais |
+| `../../../../../2026-10-05 Escopo Base Fox.txt` | Transcrição da reunião de fechamento de escopo |
+| `../../../../../2026-09-04 MVP The Crew (1'10-37'11).txt` | Transcrição da reunião de apresentação do protótipo |
 
 **Identidade visual** (de `design/README.md`): roxo `#5A1886` primário, roxo profundo `#22092F`,
 laranja `#F6730C` para destaque/CTA do VIP, Strava `#FC4C02`. Tipografia `Saira` (títulos) +

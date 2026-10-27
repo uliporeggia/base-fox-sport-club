@@ -1,0 +1,8 @@
+{
+  "projects": {
+    "default": "base-fox-sport-club-dev",
+    "development": "base-fox-sport-club-dev",
+    "staging": "base-fox-sport-club-staging",
+    "production": "base-fox-sport-club-prod"
+  }
+}

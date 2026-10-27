@@ -1,0 +1,113 @@
+rules_version = '2';
+
+// Base Fox Sport Club — Firestore security rules.
+//
+// Document-ID convention (see src/data/types.ts): `associates/{associateId}`
+// uses the Firebase Auth UID as its document ID; every other per-associate
+// collection carries an explicit `associate_id` field equal to that same UID.
+// Cloud Functions write via the Admin SDK, which bypasses these rules
+// entirely — the restrictions below only ever constrain the app itself.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(associateId) {
+      return isSignedIn() && request.auth.uid == associateId;
+    }
+
+    // Null-safe by design: `resource` is null on a `get` of a document that
+    // doesn't exist yet (e.g. rsvpsRepository.getRsvp() before the first
+    // RSVP) and on `delete`/`update` of one already gone. Dereferencing
+    // `resource.data` in that case is a rules *error* (permission-denied),
+    // not the `exists() === false` the repository expects — so every use
+    // below checks `resource == null` first. `list` never hits the null
+    // branch: a query only ever evaluates documents that exist.
+    function ownsExisting() {
+      return isSignedIn() && (resource == null || resource.data.associate_id == request.auth.uid);
+    }
+
+    function ownsIncoming() {
+      return isSignedIn() && request.resource.data.associate_id == request.auth.uid;
+    }
+
+    // associates/{associateId} — associateId IS the Firebase Auth UID.
+    // An associate reads and writes only their own document.
+    match /associates/{associateId} {
+      allow read: if isOwner(associateId);
+      allow create: if isOwner(associateId);
+      allow update: if isOwner(associateId);
+      allow delete: if false;
+    }
+
+    // rsvps/{rsvpId} — doc id is the deterministic pair
+    // "${associate_id}_${event_id}" (see rsvpsRepository.ts); filtered by
+    // associate_id, not by the app's own associate document.
+    match /rsvps/{rsvpId} {
+      allow read: if ownsExisting();
+      allow create: if ownsIncoming();
+      allow update: if ownsExisting() && ownsIncoming();
+      allow delete: if ownsExisting();
+    }
+
+    // vip_accesses/{accessId} — same ownership shape as rsvps (see
+    // vipAccessRepository.ts). No client-side delete — revocation, if ever
+    // needed, is a server-side (phase 2 host validator) concern.
+    match /vip_accesses/{accessId} {
+      allow read: if ownsExisting();
+      allow create: if ownsIncoming();
+      allow update: if ownsExisting() && ownsIncoming();
+      allow delete: if false;
+    }
+
+    // notifications/{notificationId} — written server-side only (Cloud
+    // Functions via the Admin SDK, which bypasses these rules). The app
+    // reads its own and marks them read; it never creates or deletes one.
+    match /notifications/{notificationId} {
+      allow read: if ownsExisting();
+      allow update: if ownsExisting() && ownsIncoming();
+      allow create, delete: if false;
+    }
+
+    // devices/{pushToken} — doc id is the push token itself, not the
+    // associate id (one associate can have several devices). The app
+    // registers and removes its own.
+    match /devices/{deviceId} {
+      allow read: if ownsExisting();
+      allow create: if ownsIncoming();
+      allow update: if ownsExisting() && ownsIncoming();
+      allow delete: if ownsExisting();
+    }
+
+    // events/{eventId} — read-only for the app; written by the Firestore
+    // console / seed script, never by the client.
+    match /events/{eventId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
+    // benefits/{benefitId} — read-only for the app.
+    match /benefits/{benefitId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
+    // config/app — the single document the membership gate
+    // (src/lib/membership/gate.ts) and configRepository read. Readable even
+    // signed out: EntryStack must know `membershipEnabled` before login to
+    // decide whether "Torne-se membro" exists in its graph at all.
+    match /config/app {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // config/counters — the member-number transactional counter. Not even
+    // readable by the app; only the member-number Cloud Function (Admin SDK)
+    // touches this document.
+    match /config/counters {
+      allow read, write: if false;
+    }
+  }
+}

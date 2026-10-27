@@ -91,7 +91,7 @@ As sete telas consomem `hasMemberAccess`. **A flag tem exatamente um leitor no a
 
 Descartado: espalhar verificações da flag por tela — mais rápido de escrever, impossível de auditar.
 
-**Onde o valor da flag fica guardado permanece aberto** (ver Open Questions). A decisão acima não depende disso: o `configRepository` expõe `membershipEnabled` e a origem do dado é detalhe de implementação atrás dele. Alternativa já descartada: variável de ambiente no build EAS — viola o requisito, porque ligar a cobrança exigiria novo build e nova review.
+**Onde o valor da flag fica guardado foi resolvido na implementação: documento `config/app` no Firestore** (ver Open Questions). A decisão acima não depende disso: o `configRepository` expõe `membershipEnabled` e a origem do dado é detalhe de implementação atrás dele. Alternativa já descartada: variável de ambiente no build EAS — viola o requisito, porque ligar a cobrança exigiria novo build e nova review.
 
 ### Número de associado atribuído no cadastro, não na assinatura
 
@@ -229,6 +229,33 @@ Consequências para a implementação:
 
 **3. Limite de cache de 7 dias.** A política do Strava restringe o armazenamento de dados da API a sete dias. O modelo de dados guarda `strava.athlete_id` e `username` em `associates` indefinidamente, e importa nome e foto no cadastro. Isso provavelmente se enquadra como dado de perfil do próprio usuário autenticado, e não como cache de dados de atividade — mas **é uma premissa a confirmar na política vigente antes do lançamento**, não uma certeza. Se não se enquadrar, a saída é guardar só o `athlete_id` como chave de vínculo e reconsultar o resto.
 
+### Firebase: três projetos, e o Firestore em São Paulo
+
+Provisionado em 25/10/2026, na conta Google **`oreggia.tech@gmail.com`** — mesma lógica de titularidade do Strava e da Apple.
+
+Um projeto por ambiente, com os IDs já fixados no `.firebaserc`:
+
+| Ambiente | Project ID | Bundle / package |
+| --- | --- | --- |
+| development | `base-fox-sport-club-dev` | `club.basefox.app.dev` |
+| staging | `base-fox-sport-club-staging` | `club.basefox.app.staging` |
+| production | `base-fox-sport-club-prod` | `club.basefox.app` |
+
+**O Firestore fica em `southamerica-east1` (São Paulo), e essa escolha não tem desfazer** — o console avisa que o local não pode ser alterado depois, e trocar significaria recriar o projeto. Os números que sustentam a decisão, conferidos na tabela de preços da Standard edition:
+
+| | us-central1 | southamerica-east1 |
+| --- | --- | --- |
+| 100 mil leituras | US$ 0,03 | US$ 0,045 |
+| 100 mil gravações | US$ 0,09 | US$ 0,135 |
+| Armazenamento (GiB·dia) | US$ 0,000205 | US$ 0,000185 |
+| Cota gratuita diária | 50k leituras · 20k gravações · 1 GiB | **idêntica** |
+
+São Paulo custa 1,5× por operação e paga isso com latência de dezenas de ms em vez de ~120–150 ms por ida e volta — para uma base de usuários inteiramente brasileira que lê a cada abertura de tela. No piloto o custo é nulo de qualquer forma: tudo cabe na cota gratuita, que não varia por região. A assimetria só aparece em escala, e nessa altura a migração de backend já prevista no Context volta à mesa.
+
+Nota: a gratuidade **do Cloud Storage** é que é restrita a `us-central1`, `us-west1` e `us-east1`. Storage não está no escopo desta change; se entrar, o bucket é uma decisão de região separada da do Firestore.
+
+Banco criado em **modo de produção** (`allow read, write: if false`) — as regras reais entram por deploy do `firestore.rules`, nunca pelo console.
+
 ### Perfil: edição mínima de nome e foto
 
 A tela `15` tem duas linhas sem tela desenhada. Decisões:
@@ -268,7 +295,7 @@ Base da change anterior, **sem** os eventos de Loja e **com** os de membership, 
 | Onboarding   | `onboarding_step_view`, `onboarding_skipped`                                               | `step`                                                                                     |
 | Autenticação | `sign_up` *(reservado)*, `login` *(reservado)*, `logout`                                   | `method`: `email` \| `strava`                                                              |
 | Início       | `home_viewed`, `next_event_card_tapped`, `vip_teaser_tapped`                               | `event_id`                                                                                 |
-| Membership   | `paywall_viewed`, `membership_cta_tapped`, `subscription_confirmed`, `membership_declined` | `source`: `entry_flow` \| `home_banner` \| `event_detail` \| `vip_hub` \| `benefit_detail` |
+| Membership   | `paywall_viewed`, `membership_cta_tapped`, `subscription_confirmed`, `membership_declined` | `source`: `entry_flow` \| `home_banner` \| `event_detail` \| `vip_hub` \| `benefit_detail` \| `profile` |
 | Eventos      | `events_filter_applied`, `event_viewed`, `rsvp_confirmed`, `rsvp_cancelled`                | `filter_modality`, `event_id`, `modality`, `has_vip`                                       |
 | Espaço VIP   | `vip_hub_viewed`, `vip_access_generated`, `vip_qr_viewed`                                  | `event_id`, `has_access`                                                                   |
 | Benefícios   | `benefits_filter_applied`, `benefit_viewed`, `benefit_code_copied`, `benefit_link_opened`  | `category`, `benefit_id`, `partner`, `locked`                                              |
@@ -279,6 +306,7 @@ Três notas:
 
 - Os eventos reservados do Firebase (`sign_up`, `login`) são usados onde existem, para aproveitar os relatórios de funil automáticos do console sem configuração extra.
 - `screen_view` sai automático do listener `onStateChange` do `@react-navigation` — não se loga troca de aba à mão.
+- **`profile` foi acrescentado como sexta origem na implementação (24/10/2026)**, exigido pela tarefa 8.2 ("acesso ao fluxo de assinatura quando aplicável" a partir do item Assinatura do Perfil). A tabela de sete pontos de gate acima descreve comportamento de gate, não a lista fechada de origens de paywall. Reaproveitar o `source` de outra tela foi explicitamente rejeitado: corromperia o parâmetro que responde *qual tela vende a assinatura*.
 - **Nenhum parâmetro de preço ou valor monetário em nenhum evento.** O `price` que a taxonomia antiga mandava em `order_whatsapp_initiated` morreu com a loja e não ressuscita em `subscription_confirmed`.
 
 O param `source` de `paywall_viewed` é o que torna a taxonomia útil comercialmente: ele responde *qual tela vende a assinatura*, que é a pergunta do piloto. Instrumentá-lo mal esvazia o resto.
@@ -302,6 +330,8 @@ Tab bar de 5 abas — **Início · Eventos · Espaço VIP · Benefícios · Perf
 - **[Risco] A assinatura paga do Strava é um custo recorrente que a change anterior não previa.** → **Mitigação**: valor baixo frente ao orçamento, mas precisa estar no levantamento de custos entregue ao cliente e vinculado a uma conta de desenvolvedor com dono definido — a mesma pendência de titularidade da App Store.
 - **[Risco] O limite de cache de 7 dias do Strava pode conflitar com guardar nome, foto e username em `associates`.** → **Mitigação**: confirmar o enquadramento na política vigente antes do lançamento; se não couber, guardar apenas o `athlete_id` como chave de vínculo.
 - **[Risco] A chave APNs depende de uma conta paga do Apple Developer cuja titularidade não foi decidida.** → **Mitigação**: push é a última capability na ordem das tarefas; tudo antes dela roda em Android e em dev build iOS. Mas a decisão precisa sair antes do primeiro build de distribuição — está no caminho crítico, não na cauda.
+- **[Risco descoberto na implementação, 25/10/2026] O SDK nativo do Firebase e o toolchain Kotlin do Expo SDK 58 não casam.** O `firebase-auth` moderno traz metadados Kotlin 2.4, que o compilador 2.2.10 fixado pelo Expo não lê; baixar o BoM do Firebase conserta o Auth e quebra o Firestore, porque o módulo `firestore` do `@react-native-firebase` v27 exige APIs de `SearchStage` que só existem no SDK novo. → **Mitigação aplicada**: o config plugin `scripts/withFirebaseAuthVersionForce.js` força **apenas** o artefato `firebase-auth` para uma versão com metadados legíveis, mantendo o resto do SDK moderno. Validado com `BUILD SUCCESSFUL` e APK gerado. O plugin deve ser removido quando o `@react-native-firebase` publicar um `auth` compilado com um Kotlin que o projeto consiga ler — o próprio arquivo documenta isso.
+- **[Risco descoberto na implementação, 25/10/2026] Build local para as 4 arquiteturas satura a máquina de desenvolvimento.** O build morreu duas vezes na fase CMake/NDK após ~10 minutos, travando o computador. → **Mitigação**: build local de desenvolvimento restrito à ABI do aparelho conectado (`-PreactNativeArchitectures=arm64-v8a` no `scripts/android-run.sh`), que fecha em ~3 minutos. **Builds de distribuição (EAS, Google Play) continuam exigindo todas as arquiteturas** — um APK arm64-only na loja excluiria aparelhos.
 - **[Risco] Dev client desde o início elimina o Expo Go, encarecendo o setup de qualquer pessoa nova no projeto.** → **Mitigação**: é consequência inevitável de Analytics + push; o custo é um build de dev client por plataforma, reaproveitável.
 - **[Risco] Modelagem achatada pode não ser o padrão de leitura mais eficiente no Firestore para todos os casos.** → **Mitigação**: modelar sobre os padrões de leitura que o mockup já exibe, sem especular além; revisitar só se o piloto expuser problema real.
 - **[Risco] A camada de repositório adiciona esforço inicial de estrutura.** → **Mitigação**: mantê-la fina (funções simples por coleção), sem construir ORM — o custo extra é próximo de zero.
@@ -323,8 +353,8 @@ Rollback de qualquer passo é a operação inversa da flag, exceto a fase 2, que
 
 ## Open Questions
 
-- **Onde o valor da flag de membership fica guardado?** As duas opções vivas: documento `config/app` no Firestore lido pelo `configRepository` (nenhuma dependência nativa nova, cliente liga pelo console, já respeita a camada de repositório obrigatória) ou **Firebase Remote Config** (produto feito para flags, com rollout por porcentagem e segmentação por audiência que ninguém pediu, e um segundo mecanismo de configuração convivendo com o Firestore). Não bloqueia nenhuma tarefa — o `configRepository` esconde a origem — e deve ser resolvido ao provisionar o Firebase. Variável de ambiente no build EAS já está descartada: viola o requisito de desligar sem novo build.
-- **Projeto Firebase único ou separado por ambiente** (dev/staging/prod)?
+- **~~Onde o valor da flag de membership fica guardado?~~ Resolvido na implementação (24/10/2026): documento `config/app` no Firestore, lido pelo `configRepository`.** Descartado o **Firebase Remote Config** — traria rollout por porcentagem e segmentação por audiência que ninguém pediu, e um segundo mecanismo de configuração convivendo com o Firestore. O `client_id` do Strava vive no mesmo documento (tarefa 1.9a), então a flag não introduz origem de configuração nova. Variável de ambiente no build EAS seguia descartada: viola o requisito de desligar sem novo build.
+- **~~Projeto Firebase único ou separado por ambiente~~ Resolvido na implementação (24/10/2026): três projetos (dev/staging/prod).** O `app.config.ts` deriva de `APP_ENV` o projeto, o nome exibido e o bundle id — `club.basefox.app` em produção, com sufixos `.dev` e `.staging`, para que os três possam coexistir no mesmo aparelho. Os ids em `.firebaserc` são placeholders até o provisionamento.
 - **A conversão de conta Apple individual para organização vale a pena no futuro?** Hoje publicamos como pessoa física, o que expõe o nome legal pessoal na ficha da App Store. A Apple tem um processo de conversão, mas suas condições e prazo não foram verificados — e se for custoso, seriam duas matrículas de US$ 99. Reavaliar quando a marca Base Fox tiver tração.
 - **Definir senha numa conta sem senha exige login recente?** Decide se o fluxo de "definir senha" no Perfil pode ser oferecido direto ou precisa de etapa de confirmação. Confirmar na implementação antes de prometer o fluxo ao associado.
 - **Painel admin mínimo?** Eventos e benefícios são cadastrados à mão no piloto. Avaliar se o console do Firestore basta ou se vale um admin enxuto antes do lançamento.

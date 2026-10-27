@@ -1,0 +1,62 @@
+# dependencies
+node_modules/
+functions/node_modules/
+functions/lib/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files (never commit real secrets — see .env.example)
+.env
+.env.local
+.env*.local
+.env.development
+.env.staging
+.env.production
+
+# Firebase / Google service credentials — never commit real keys
+google-services.json
+google-services.*.json
+GoogleService-Info.plist
+GoogleService-Info.*.plist
+functions/.runtimeconfig.json
+*-service-account*.json
+*adminsdk*.json
+serviceAccountKey.json
+
+# typescript
+*.tsbuildinfo
+
+# generated native folders
+/ios
+/android
+
+# EAS
+.eas/
+
+# coverage
+coverage/

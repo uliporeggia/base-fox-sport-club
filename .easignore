@@ -1,0 +1,77 @@
+# EAS Build upload ignore list.
+#
+# EAS Build uses THIS file instead of .gitignore to decide what gets
+# uploaded to the builder (when .easignore exists, .gitignore is not
+# consulted for the upload archive). This file must therefore mirror every
+# security-relevant pattern from .gitignore — anything missing here gets
+# sent to the remote build, even though it stays out of git.
+#
+# The ONLY intentional difference from .gitignore: the per-environment
+# Firebase config files (google-services*.json / GoogleService-Info*.plist)
+# are NOT ignored here. They stay gitignored (never committed), but they
+# must reach the EAS Build machine so the config plugin can wire them into
+# the native project — see app.config.ts for why. Everything else below is
+# copied verbatim from .gitignore; do not drop a line without checking
+# .gitignore first.
+
+# dependencies
+node_modules/
+functions/node_modules/
+functions/lib/
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Native
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
+.DS_Store
+*.pem
+
+# local env files (never commit real secrets — see .env.example)
+.env
+.env.local
+.env*.local
+.env.development
+.env.staging
+.env.production
+
+# Firebase / Google service credentials — never commit real keys
+# NOTE: google-services*.json / GoogleService-Info*.plist are deliberately
+# NOT listed here (see header comment) — everything else from .gitignore's
+# equivalent block stays ignored.
+functions/.runtimeconfig.json
+*-service-account*.json
+*adminsdk*.json
+serviceAccountKey.json
+
+# typescript
+*.tsbuildinfo
+
+# generated native folders
+/ios
+/android
+
+# EAS
+.eas/
+
+# coverage
+coverage/

@@ -10,11 +10,18 @@ import withFirebaseAuthVersionForce from './scripts/withFirebaseAuthVersionForce
  *    staging builds can be installed side by side with production,
  *  - which `google-services.json` / `GoogleService-Info.plist` file is wired
  *    into the native build, matching a Firebase project per environment
- *    (overridable by an EAS file secret — see `googleServicesJson` below),
+ *    (the Android path is further overridable via `GOOGLE_SERVICES_JSON` —
+ *    see `googleServicesJson` below),
  *  - the `environment` / `release` values exposed to Sentry.
  *
  * None of this requires a new app build to change later: swapping Firebase
  * project per environment is a file-path decision here, not app logic.
+ *
+ * The `google-services*.json` / `GoogleService-Info*.plist` files are
+ * gitignored (never committed) but NOT eas-ignored (see `.easignore`) — EAS
+ * Build uses `.easignore` instead of `.gitignore` to decide what to upload,
+ * so these files do reach the build machine at the same relative path they
+ * have locally.
  */
 type AppEnv = 'development' | 'staging' | 'production';
 
@@ -45,37 +52,56 @@ const ENV_NAME_SUFFIX: Record<AppEnv, string> = {
 const bundleIdentifier = `${BASE_BUNDLE_ID}${ENV_SUFFIX[APP_ENV]}`;
 const appName = `Base Fox${ENV_NAME_SUFFIX[APP_ENV]}`;
 
-// `GOOGLE_SERVICES_FILE` / `GOOGLE_SERVICE_INFO_PLIST` are the names EAS Build
-// uses for a *file*-type secret/environment variable: when one is attached to
-// a build, EAS materializes the file on the build machine and the variable's
-// value becomes its absolute path. EAS Build respects `.gitignore`, and the
-// per-environment `google-services*.json` / `GoogleService-Info*.plist` files
-// are intentionally gitignored (env config doesn't belong in the repo), so
-// without this they never reach the remote build and the Firebase config
-// plugin fails. Locally, neither variable is set, so both fall through to the
-// same local-file resolution that always worked — local dev does not depend
-// on either secret existing.
+// Single source of truth for the app version, shared by the `version` field
+// below and by `release` further down — so the two can never drift apart.
+const APP_VERSION = '1.0.0';
+
+// Resolved purely from APP_ENV / a local-path override — NOT from an EAS
+// file-type secret (`GOOGLE_SERVICES_FILE` et al.).
+//
+// That secret mechanism was tried and reverted: `runtimeVersion` uses the
+// `fingerprint` policy (see below), which hashes the resolved Expo config —
+// including this path. Locally the secret env var is unset, so the config
+// evaluates to the relative path below; on an EAS Build machine with the
+// secret attached, it evaluated to the file's materialized *absolute* path
+// instead. Different resolved config -> different fingerprint -> EAS Update
+// aborted the build with "Runtime version calculated on local machine not
+// equal to runtime version calculated during build." Do NOT reintroduce a
+// `process.env.GOOGLE_SERVICES_FILE ?? ...` fallback here — it reopens that
+// exact divergence. The file now reaches the build machine via `.easignore`
+// (which EAS Build uses instead of `.gitignore` to pick upload contents),
+// so both sides resolve the identical relative path without any secret.
 const googleServicesJson =
-  process.env.GOOGLE_SERVICES_FILE ??
   process.env.GOOGLE_SERVICES_JSON ??
   (APP_ENV === 'production'
     ? './google-services.json'
     : `./google-services.${APP_ENV}.json`);
 
-// Same mechanism for iOS. No `GOOGLE_SERVICE_INFO_PLIST` secret exists yet
-// (iOS builds come later) — when one is created, give it this exact name so
-// it's picked up the same way, with no further code change here.
+// iOS: path resolved purely by APP_ENV, no env var override (no
+// `GOOGLE_SERVICE_INFO_PLIST` — removed for the same fingerprint reason as
+// above; see the comment on `googleServicesJson`).
 const googleServiceInfoPlist =
-  process.env.GOOGLE_SERVICE_INFO_PLIST ??
-  (APP_ENV === 'production'
+  APP_ENV === 'production'
     ? './GoogleService-Info.plist'
-    : `./GoogleService-Info.${APP_ENV}.plist`);
+    : `./GoogleService-Info.${APP_ENV}.plist`;
 
-// release: app version + an EAS-provided build identifier, falling back to
-// "local" outside of an EAS Build (e.g. a developer's machine).
-const release = `${process.env.APP_VERSION ?? '1.0.0'}+${
-  process.env.EAS_BUILD_GIT_COMMIT_HASH ?? process.env.EAS_BUILD_ID ?? 'local'
-}`;
+// release: app version + environment. Deliberately NOT derived from
+// `EAS_BUILD_GIT_COMMIT_HASH` / `EAS_BUILD_ID` (or any other
+// `process.env.EAS_BUILD_*` var) — those only exist on the EAS Build
+// machine, never locally. `runtimeVersion` uses the `fingerprint` policy,
+// which hashes the resolved Expo config, and this `extra.sentry.release`
+// string is part of that resolved config. A build-only value here makes the
+// locally-computed fingerprint diverge from the one computed during the
+// build, and EAS Update aborts with "Runtime version calculated on local
+// machine not equal to runtime version calculated during build." (measured:
+// adding either var changes the config's hash). The commit that produced a
+// build is not lost by dropping it from here — the EAS Build dashboard
+// already records the commit per build, and `dist` (see
+// src/lib/observability/sentry.ts) identifies the exact OTA bundle via
+// `expo-updates`' `updateId`. Do NOT reintroduce an `EAS_BUILD_*` read here;
+// if the commit is ever needed in Sentry, attach it as a tag/context at
+// runtime, not as a config value.
+const release = `${APP_VERSION}+${APP_ENV}`;
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
@@ -84,7 +110,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   // EAS project owner (transferred to oreggia-tech organization on 25/10/2026; projectId preserved)
   owner: 'oreggia-tech',
   scheme: 'basefox',
-  version: '1.0.0',
+  version: APP_VERSION,
   // EAS Update (expo-updates). The project has 14+ native modules (5 from
   // @react-native-firebase, Sentry, expo-notifications, expo-secure-store,
   // react-native-svg, ...) plus expo-build-properties' `useFrameworks:

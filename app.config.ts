@@ -56,26 +56,27 @@ const appName = `Base Fox${ENV_NAME_SUFFIX[APP_ENV]}`;
 // below and by `release` further down — so the two can never drift apart.
 const APP_VERSION = '1.0.0';
 
-// Resolved purely from APP_ENV / a local-path override — NOT from an EAS
-// file-type secret (`GOOGLE_SERVICES_FILE` et al.).
+// Resolved purely from APP_ENV — NOT from an EAS file-type secret or
+// environment variable override (NO `process.env.GOOGLE_SERVICES_JSON`,
+// `GOOGLE_SERVICES_FILE`, etc.).
 //
-// That secret mechanism was tried and reverted: `runtimeVersion` uses the
+// That secret/env mechanism was tried and reverted: `runtimeVersion` uses the
 // `fingerprint` policy (see below), which hashes the resolved Expo config —
-// including this path. Locally the secret env var is unset, so the config
+// including these paths. Locally the secret env var is unset, so the config
 // evaluates to the relative path below; on an EAS Build machine with the
 // secret attached, it evaluated to the file's materialized *absolute* path
 // instead. Different resolved config -> different fingerprint -> EAS Update
 // aborted the build with "Runtime version calculated on local machine not
-// equal to runtime version calculated during build." Do NOT reintroduce a
-// `process.env.GOOGLE_SERVICES_FILE ?? ...` fallback here — it reopens that
-// exact divergence. The file now reaches the build machine via `.easignore`
-// (which EAS Build uses instead of `.gitignore` to pick upload contents),
-// so both sides resolve the identical relative path without any secret.
+// equal to runtime version calculated during build." Do NOT reintroduce
+// `process.env.*` overrides here — they reopen that exact divergence. These
+// files now reach the build machine via `.easignore` (which EAS Build uses
+// instead of `.gitignore` to pick upload contents), so both Android and iOS
+// resolve the identical relative paths based purely on APP_ENV, without any
+// environment variable or file-secret interference.
 const googleServicesJson =
-  process.env.GOOGLE_SERVICES_JSON ??
-  (APP_ENV === 'production'
+  APP_ENV === 'production'
     ? './google-services.json'
-    : `./google-services.${APP_ENV}.json`);
+    : `./google-services.${APP_ENV}.json`;
 
 // iOS: path resolved purely by APP_ENV, no env var override (no
 // `GOOGLE_SERVICE_INFO_PLIST` — removed for the same fingerprint reason as

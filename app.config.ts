@@ -9,7 +9,8 @@ import withFirebaseAuthVersionForce from './scripts/withFirebaseAuthVersionForce
  *  - the app display name and bundle identifier / package name, so dev and
  *    staging builds can be installed side by side with production,
  *  - which `google-services.json` / `GoogleService-Info.plist` file is wired
- *    into the native build, matching a Firebase project per environment,
+ *    into the native build, matching a Firebase project per environment
+ *    (overridable by an EAS file secret — see `googleServicesJson` below),
  *  - the `environment` / `release` values exposed to Sentry.
  *
  * None of this requires a new app build to change later: swapping Firebase
@@ -44,12 +45,26 @@ const ENV_NAME_SUFFIX: Record<AppEnv, string> = {
 const bundleIdentifier = `${BASE_BUNDLE_ID}${ENV_SUFFIX[APP_ENV]}`;
 const appName = `Base Fox${ENV_NAME_SUFFIX[APP_ENV]}`;
 
+// `GOOGLE_SERVICES_FILE` / `GOOGLE_SERVICE_INFO_PLIST` are the names EAS Build
+// uses for a *file*-type secret/environment variable: when one is attached to
+// a build, EAS materializes the file on the build machine and the variable's
+// value becomes its absolute path. EAS Build respects `.gitignore`, and the
+// per-environment `google-services*.json` / `GoogleService-Info*.plist` files
+// are intentionally gitignored (env config doesn't belong in the repo), so
+// without this they never reach the remote build and the Firebase config
+// plugin fails. Locally, neither variable is set, so both fall through to the
+// same local-file resolution that always worked — local dev does not depend
+// on either secret existing.
 const googleServicesJson =
+  process.env.GOOGLE_SERVICES_FILE ??
   process.env.GOOGLE_SERVICES_JSON ??
   (APP_ENV === 'production'
     ? './google-services.json'
     : `./google-services.${APP_ENV}.json`);
 
+// Same mechanism for iOS. No `GOOGLE_SERVICE_INFO_PLIST` secret exists yet
+// (iOS builds come later) — when one is created, give it this exact name so
+// it's picked up the same way, with no further code change here.
 const googleServiceInfoPlist =
   process.env.GOOGLE_SERVICE_INFO_PLIST ??
   (APP_ENV === 'production'

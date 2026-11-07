@@ -6,7 +6,7 @@ Estas não custam esforço, custam **tempo de terceiro**. Nenhuma acelera com ma
 - [ ] 0.2 Registrar a aplicação Strava nessa conta e fazer o auto-upgrade para 10 atletas, disponível sem review
 - [ ] 0.3 Solicitar ao Strava o aumento de capacidade acima de 10 atletas — review sem SLA publicado; é o item de prazo mais imprevisível do projeto
 - [x] 0.4 Matricular a Oreggia Tech no Apple Developer Program como **pessoa física** (24 a 48 h, sem D-U-N-S)
-- [ ] 0.5 Criar a conta **pessoal** no Google Play Console (US$ 25, taxa única)
+- [x] 0.5 Criar a conta **pessoal** no Google Play Console (US$ 25, taxa única)
 - [ ] 0.6 Recrutar os 12 testadores do teste fechado do Google Play, com o cliente, e avisá-los a não desinstalar o app — sair e voltar reinicia a contagem individual de 14 dias
 - [ ] 0.7 Subir ao teste fechado do Google Play a primeira build instalável, ainda que incompleta, para iniciar o relógio de 14 dias corridos em paralelo ao desenvolvimento
 

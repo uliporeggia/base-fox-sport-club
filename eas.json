@@ -15,7 +15,8 @@
       "distribution": "internal",
       "channel": "preview",
       "env": {
-        "APP_ENV": "staging"
+        "APP_ENV": "staging",
+        "SENTRY_DISABLE_AUTO_UPLOAD": "true"
       }
     },
     "demo": {
@@ -23,14 +24,16 @@
       "distribution": "internal",
       "channel": "demo",
       "env": {
-        "APP_ENV": "development"
+        "APP_ENV": "development",
+        "SENTRY_DISABLE_AUTO_UPLOAD": "true"
       }
     },
     "production": {
       "channel": "production",
       "autoIncrement": true,
       "env": {
-        "APP_ENV": "production"
+        "APP_ENV": "production",
+        "SENTRY_DISABLE_AUTO_UPLOAD": "true"
       }
     }
   },

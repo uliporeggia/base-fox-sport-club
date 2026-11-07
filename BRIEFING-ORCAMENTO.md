@@ -145,7 +145,15 @@ Seção curta e direta. Nenhum destes é linha de orçamento, mas todos podem at
 | D-U-N-S | até 30 dias, bloqueia as duas lojas | não exige |
 | Apple — matrícula | 2 a 4 semanas | 24 a 48 horas |
 | Google Play — 12 testadores | isento | obrigatório |
-| Nome exibido na ficha | Oreggia Tech | nome legal pessoal |
+| Nome exibido na ficha | Oreggia Tech | **Apple:** nome legal · **Google Play:** nome livre ("Oreggia Tech") **+ razão social legal no perfil público** |
+
+> **Verificado no cadastro em 06/11/2026.** A linha acima dizia apenas "nome legal pessoal" para as duas lojas; a realidade é diferente em cada uma.
+>
+> **Apple:** o *seller* de pessoa física é o nome do documento, sem alternativa.
+>
+> **Google Play:** são **dois campos distintos**. O *nome de desenvolvedor* é livre e editável depois — o console diz que "não precisa ser igual ao seu nome" — e usamos **Oreggia Tech**. Mas o *perfil público* exibe também a **razão social legal** (`ULI PORTO OREGGIA`) e o país. Logo o nome legal aparece de qualquer forma, só não como rótulo do app.
+>
+> ⚠️ **Consequência para a fase 2:** o console adverte que *"se você optar por ganhar dinheiro, seu endereço oficial completo será exibido publicamente"*. Enquanto a mensalidade for confirmada sem cobrança, nada muda. **No dia em que a assinatura virar cobrança real, o endereço residencial do titular passa a ser público na ficha da Play Store.** Isso pesa na pergunta em aberto sobre converter para conta de organização, que até agora só considerava o nome exibido.
 
 O ganho decisivo é o iOS: TestFlight destravado em dois dias em vez de um mês, sem depender do D-U-N-S.
 

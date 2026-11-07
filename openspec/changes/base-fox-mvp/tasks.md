@@ -127,6 +127,6 @@ Estas não custam esforço, custam **tempo de terceiro**. Nenhuma acelera com ma
 - [x] 10.1 Escrever um script de seed versionado com os dados iniciais do piloto — eventos, o benefício do cupom de 15% e as vagas "Em breve" — sem nenhum valor em reais
 - [x] 10.2 Auditar o repositório inteiro, incluindo copy, seed, mocks, testes, nome do pacote e metadados de loja, em busca de menções a Kailash, XKR ou KTR, e de qualquer valor em reais
 - [x] 10.3 Validar o funil completo com a flag de membership **desligada**, confirmando que nenhuma tela de assinatura é alcançável e que nenhum caminho morto aparece
-- [ ] 10.4 Validar o funil completo com a flag **ligada**, percorrendo os sete pontos de gate nos dois planos
+- [x] 10.4 Validar o funil completo com a flag **ligada**, percorrendo os sete pontos de gate nos dois planos
 - [ ] 10.5 Conferir os dashboards do Firebase Analytics e do Sentry, com atenção à origem do paywall, antes do lançamento do piloto
 - [ ] 10.6 Alinhar com o cliente que, com a flag desligada no piloto, o funil comercial não gera dados — para que a ausência não seja lida como falha de instrumentação

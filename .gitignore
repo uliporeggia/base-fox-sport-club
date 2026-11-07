@@ -48,6 +48,11 @@ functions/.runtimeconfig.json
 *adminsdk*.json
 serviceAccountKey.json
 
+# Firebase CLI debug logs (firebase-debug.log, dataconnect-debug.log, ...) and local emulator/cache dir
+*-debug.log
+*-debug.*.log
+.firebase/
+
 # typescript
 *.tsbuildinfo
 

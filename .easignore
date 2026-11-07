@@ -13,6 +13,10 @@
 # the native project — see app.config.ts for why. Everything else below is
 # copied verbatim from .gitignore; do not drop a line without checking
 # .gitignore first.
+#
+# Rule for future edits: every NEW security pattern is added to BOTH files, in
+# the same section and position. A pattern that exists only in .gitignore does
+# NOT protect the EAS upload.
 
 # dependencies
 node_modules/
@@ -62,6 +66,11 @@ functions/.runtimeconfig.json
 *-service-account*.json
 *adminsdk*.json
 serviceAccountKey.json
+
+# Firebase CLI debug logs (firebase-debug.log, dataconnect-debug.log, ...) and local emulator/cache dir
+*-debug.log
+*-debug.*.log
+.firebase/
 
 # typescript
 *.tsbuildinfo

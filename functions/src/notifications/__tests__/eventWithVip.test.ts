@@ -10,7 +10,7 @@ describe('buildEventWithVipPayload', () => {
   it('builds the "Novo evento com espaço VIP" notification with no monetary value and no brand names', () => {
     const event: EventDocData = {
       name: 'Trilha da Pedra Grande',
-      starts_at: fakeTimestamp(new Date('2026-10-26T08:00:00')),
+      starts_at: fakeTimestamp(new Date('2026-10-26T08:00:00-03:00')),
       location: 'Atibaia, SP',
       has_vip: true,
     };

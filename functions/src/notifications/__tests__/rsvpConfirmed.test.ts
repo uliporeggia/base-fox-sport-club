@@ -11,7 +11,7 @@ describe('buildRsvpConfirmedPayload', () => {
   it('mentions VIP access when the event has it', () => {
     const event: EventDocData = {
       name: 'Corrida Base Fox 10K',
-      starts_at: fakeTimestamp(new Date('2026-10-24T06:30:00')),
+      starts_at: fakeTimestamp(new Date('2026-10-24T06:30:00-03:00')),
       location: 'Parque Villa-Lobos, SP',
       has_vip: true,
     };
@@ -25,7 +25,7 @@ describe('buildRsvpConfirmedPayload', () => {
   it('confirms presence plainly when the event has no VIP space', () => {
     const event: EventDocData = {
       name: 'Corrida Base Fox 10K',
-      starts_at: fakeTimestamp(new Date('2026-10-24T06:30:00')),
+      starts_at: fakeTimestamp(new Date('2026-10-24T06:30:00-03:00')),
       location: 'Parque Villa-Lobos, SP',
       has_vip: false,
     };

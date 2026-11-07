@@ -102,50 +102,68 @@ initializeApp({
 const db = getFirestore();
 
 // ============================================================================
+// Time zone: every time below is written as São Paulo wall-clock time.
+// ============================================================================
+
+/**
+ * Builds a Timestamp from a São Paulo local date-time ("YYYY-MM-DDTHH:mm").
+ * The literal in the seed reads exactly as the time shown to the user; the
+ * -03:00 offset is applied here, not in the reader's head. Brazil has had no
+ * DST since 2019, so a fixed -03:00 is correct for São Paulo. Never write a
+ * bare `new Date('...Z')` in this file: "Z" means UTC and shifts the time 3h.
+ */
+function saoPaulo(local: string): FirestoreTimestamp {
+  if (!/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/.test(local)) {
+    throw new Error(`saoPaulo() expects "YYYY-MM-DDTHH:mm", got "${local}"`);
+  }
+  return Timestamp.fromDate(new Date(`${local}:00-03:00`));
+}
+
+// ============================================================================
 // Seed Data
 // ============================================================================
 
 const events: Record<string, EventRecord> = {
-  // Corrida Base Fox 10K — 18 Oct 2026, 6:30 AM, Villa-Lobos, SP
+  // Corrida Base Fox 10K — 29 Nov 2026 (dom), 06:30 BRT, Villa-Lobos, SP
   evt_corrida_basefox_10k: {
     name: 'Corrida Base Fox 10K',
     modality: 'corrida',
     distance: '10 km',
-    starts_at: Timestamp.fromDate(new Date('2026-10-18T06:30:00Z')),
+    starts_at: saoPaulo('2026-11-29T06:30'),
     location: 'Villa-Lobos, SP',
     description: 'Uma corrida de 10 km pelo Parque Villa-Lobos com percurso desafiador e vista de São Paulo.',
     organizer: 'base_fox',
     has_vip: true,
     vip_window: {
-      starts_at: Timestamp.fromDate(new Date('2026-10-17T18:00:00Z')),
-      ends_at: Timestamp.fromDate(new Date('2026-10-18T04:00:00Z')),
+      starts_at: saoPaulo('2026-11-29T05:30'),
+      ends_at: saoPaulo('2026-11-29T10:00'),
     },
     vip_perks: ['Acesso prioritário', 'Brinde exclusivo'],
   },
 
-  // Trilha da Pedra Grande — 26 Oct 2026, 7:00 AM, Atibaia, SP
+  // Trilha da Pedra Grande — 13 Dec 2026 (dom), 07:00 BRT, Atibaia, SP
   evt_trilha_pedra_grande: {
     name: 'Trilha da Pedra Grande',
     modality: 'trilha',
     distance: '12 km',
-    starts_at: Timestamp.fromDate(new Date('2026-10-26T07:00:00Z')),
+    starts_at: saoPaulo('2026-12-13T07:00'),
     location: 'Atibaia, SP',
     description: 'Trilha técnica de 12 km na região de Atibaia com vistas panorâmicas e desafio moderado.',
     organizer: 'base_fox',
     has_vip: true,
     vip_window: {
-      starts_at: Timestamp.fromDate(new Date('2026-10-25T19:00:00Z')),
-      ends_at: Timestamp.fromDate(new Date('2026-10-26T05:00:00Z')),
+      starts_at: saoPaulo('2026-12-13T06:00'),
+      ends_at: saoPaulo('2026-12-13T11:00'),
     },
     vip_perks: ['Acesso prioritário', 'Consulta com guia'],
   },
 
-  // Trekking Paranapiacaba — 08 Nov 2026, 6:00 AM, Santo André, SP
+  // Trekking Paranapiacaba — 08 Nov 2026 (dom), 06:00 BRT, Santo André, SP
   evt_trekking_paranapiacaba: {
     name: 'Trekking Paranapiacaba',
     modality: 'trekking',
     distance: '18 km',
-    starts_at: Timestamp.fromDate(new Date('2026-11-08T06:00:00Z')),
+    starts_at: saoPaulo('2026-11-08T06:00'),
     location: 'Santo André, SP',
     description: 'Trekking de longa distância de 18 km na região da Serra do Mar com história e biodiversidade.',
     organizer: 'base_fox',
@@ -154,19 +172,19 @@ const events: Record<string, EventRecord> = {
     vip_perks: [],
   },
 
-  // Night Run Base Fox — 15 Nov 2026, 7:30 PM, Ibirapuera, SP
+  // Night Run Base Fox — 15 Nov 2026 (dom), 19:30 BRT, Ibirapuera, SP
   evt_night_run_basefox: {
     name: 'Night Run Base Fox',
     modality: 'corrida',
     distance: '5 km',
-    starts_at: Timestamp.fromDate(new Date('2026-11-15T19:30:00Z')),
+    starts_at: saoPaulo('2026-11-15T19:30'),
     location: 'Ibirapuera, SP',
     description: 'Corrida noturna de 5 km no Parque Ibirapuera com iluminação e ambiente festivo.',
     organizer: 'base_fox',
     has_vip: true,
     vip_window: {
-      starts_at: Timestamp.fromDate(new Date('2026-11-14T20:00:00Z')),
-      ends_at: Timestamp.fromDate(new Date('2026-11-15T17:00:00Z')),
+      starts_at: saoPaulo('2026-11-15T17:00'),
+      ends_at: saoPaulo('2026-11-15T22:00'),
     },
     vip_perks: ['Acesso prioritário', 'Camiseta VIP'],
   },
@@ -182,7 +200,7 @@ const benefits: Record<string, Benefit> = {
     code: 'BASEFOX15',
     external_url: 'https://inscricoes.example.com/base-fox', // TODO: URL real das inscrições, a confirmar com o cliente
     usage_note: 'Vale para todos os eventos próprios do clube — corrida, trilha e trekking. Use no checkout da inscrição.',
-    valid_until: Timestamp.fromDate(new Date('2026-12-31T23:59:59Z')),
+    valid_until: saoPaulo('2026-12-31T23:59'),
     status: 'active',
   },
 

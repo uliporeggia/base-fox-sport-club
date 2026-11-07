@@ -45,7 +45,7 @@ const baseEvent: WithId<EventRecord> = {
   name: 'Corrida Base Fox 10K',
   modality: 'corrida',
   distance: '10 km',
-  starts_at: { toDate: () => new Date(2026, 9, 17, 6, 30) } as never,
+  starts_at: { toDate: () => new Date('2026-10-17T06:30:00-03:00') } as never,
   location: 'Villa-Lobos, SP',
   description: 'Uma corrida de 10km pelo parque.',
   organizer: 'base_fox',
@@ -96,8 +96,8 @@ describe('EventDetailScreen', () => {
       has_vip: true,
       vip_perks: ['Café', 'Cerveja', 'Food truck'],
       vip_window: {
-        starts_at: { toDate: () => new Date(2026, 9, 17, 10, 0) } as never,
-        ends_at: { toDate: () => new Date(2026, 9, 17, 14, 0) } as never,
+        starts_at: { toDate: () => new Date('2026-10-17T10:00:00-03:00') } as never,
+        ends_at: { toDate: () => new Date('2026-10-17T14:00:00-03:00') } as never,
       },
     });
     mockUseMemberAccess.mockReturnValue({ hasMemberAccess: true, membershipEnabled: true, isLoading: false });

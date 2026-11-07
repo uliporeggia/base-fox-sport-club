@@ -1,3 +1,5 @@
+import { saoPauloParts } from '../../events/lib/format';
+
 /**
  * Pure date/time formatting helpers for the Espaço VIP screens (07/08),
  * matching the mockup's pt-BR copy ("Sáb, 18 out · 6h às 11h", "26 out",
@@ -32,23 +34,24 @@ const MONTHS_ABBR = [
 
 /** "18 out" */
 export function formatDayMonth(date: Date): string {
-  return `${date.getDate()} ${MONTHS_ABBR[date.getMonth()]}`;
+  const { day, month } = saoPauloParts(date);
+  return `${day} ${MONTHS_ABBR[month]}`;
 }
 
 /** "Sáb, 18 out" */
 export function formatWeekdayShort(date: Date): string {
-  return `${WEEKDAYS_ABBR[date.getDay()]}, ${formatDayMonth(date)}`;
+  return `${WEEKDAYS_ABBR[saoPauloParts(date).weekday]}, ${formatDayMonth(date)}`;
 }
 
 /** "Sábado, 18 out" */
 export function formatWeekdayFull(date: Date): string {
-  return `${WEEKDAYS_FULL[date.getDay()]}, ${formatDayMonth(date)}`;
+  return `${WEEKDAYS_FULL[saoPauloParts(date).weekday]}, ${formatDayMonth(date)}`;
 }
 
 /** "6h" or "6h30" */
 export function formatHour(date: Date): string {
-  const minutes = date.getMinutes();
-  return minutes === 0 ? `${date.getHours()}h` : `${date.getHours()}h${String(minutes).padStart(2, '0')}`;
+  const { hour, minute } = saoPauloParts(date);
+  return minute === 0 ? `${hour}h` : `${hour}h${String(minute).padStart(2, '0')}`;
 }
 
 /** "6h às 11h" */

@@ -23,7 +23,7 @@ const nextEvent: WithId<EventRecord> = {
   name: 'Corrida Base Fox 10K',
   modality: 'corrida',
   distance: '10 km',
-  starts_at: { toDate: () => new Date(2026, 9, 17, 6, 30) } as never,
+  starts_at: { toDate: () => new Date('2026-10-17T06:30:00-03:00') } as never,
   location: 'Villa-Lobos, SP',
   description: '',
   organizer: 'base_fox',

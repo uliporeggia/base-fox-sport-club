@@ -348,9 +348,16 @@ Consequências:
 - Testador interno obriga a ser usuário do App Store Connect — não existe papel só de
   testador. Os papéis elegíveis são Account Holder, Admin, App Manager, Developer e
   **Marketing**, e é o Marketing que tem menos permissões: é o que o cliente recebe.
-  São **dois passos**: convidar o usuário para a equipe e, depois, adicioná-lo ao
-  TestFlight — entrar na equipe não o torna testador. Ele recebe dois e-mails da Apple
-  nessa ordem, e precisa aceitar o primeiro.
+  São **dois passos**: convidar o usuário e, depois, adicioná-lo ao TestFlight — ser
+  usuário não o torna testador. Ele recebe dois e-mails da Apple nessa ordem, e precisa
+  aceitar o primeiro. O e-mail do convite tem de ser o Apple ID dele.
+- Numa inscrição **individual** (que é o caso), o usuário convidado recebe acesso apenas
+  ao App Store Connect e **não** passa a integrar o time do Apple Developer Program —
+  esse vínculo só existe em inscrições de organização. Ou seja, ele não alcança
+  certificados, provisioning profiles nem a inscrição. A exposição é menor do que a
+  expressão "usuário da conta" sugere.
+- Teto: **100 testadores internos**, sem Beta App Review, e cada build fica instalável
+  por 90 dias. O grupo externo iria a 10.000, mas ao custo da revisão por versão.
 - O registro no App Store Connect é criado no primeiro `eas submit` e amarra o bundle ID
   em definitivo. Fica em `club.basefox.app.dev`, apontando para o Firebase de
   desenvolvimento — é o único ambiente com dados semeados, e um app vazio não demonstra

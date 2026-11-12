@@ -40,7 +40,9 @@
   "submit": {
     "production": {},
     "demo": {
-      "ios": {}
+      "ios": {
+        "ascAppId": "6833713373"
+      }
     }
   }
 }

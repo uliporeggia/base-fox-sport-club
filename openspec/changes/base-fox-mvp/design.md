@@ -323,6 +323,46 @@ O param `source` de `paywall_viewed` é o que torna a taxonomia útil comercialm
 
 `Sentry.init` com `environment` (dev/staging/prod) e `release` (versão do build EAS); error boundary no componente raiz; contexto de usuário pós-login usando `associate_id` interno — **nunca e-mail em texto puro**; breadcrumbs automáticos de navegação ligados.
 
+### iOS chega ao cliente por TestFlight, não por distribuição ad hoc
+
+Decidido em 11/11/2026, depois de o cliente passar uma tarde preso no cadastro de UDID
+sem conseguir nada.
+
+A distribuição interna (ad hoc) cobra do testador três pedágios que não são negociáveis:
+o perfil de configuração baixado é **apagado pelo iOS em 8 minutos** se não for instalado,
+e o botão que o instala fica em Ajustes → Geral → VPN e Gerenciamento de Dispositivo, um
+lugar que ninguém encontra sem instrução prévia; a Proteção contra Roubo bloqueia a
+instalação fora de um local conhecido, com atraso de 1 hora; e o iOS 16+ ainda exige
+**Modo de Desenvolvedor** ligado, com reinício do aparelho. O cliente é o dono do clube,
+não um desenvolvedor, e o canal é o WhatsApp. Esse caminho não fecha.
+
+O TestFlight dispensa os três: instalar o app da Apple, tocar no convite, pronto — e as
+versões seguintes chegam sozinhas, sem novo cadastro de aparelho.
+
+Consequências:
+- O perfil `demo` do `eas.json` passa a ter `ios.distribution: "store"`, exigido pelo
+  TestFlight, mantendo o Android em `internal` (o APK lateral segue funcionando).
+- O cliente entra como **testador interno**: sem Beta App Review, disponível 5–10 min
+  após o processamento. Um grupo externo evitaria dar-lhe acesso à conta, mas custaria
+  revisão da Apple na primeira build de **cada versão**.
+- Testador interno obriga a ser usuário do App Store Connect — não existe papel só de
+  testador. Os papéis elegíveis são Account Holder, Admin, App Manager, Developer e
+  **Marketing**, e é o Marketing que tem menos permissões: é o que o cliente recebe.
+  São **dois passos**: convidar o usuário para a equipe e, depois, adicioná-lo ao
+  TestFlight — entrar na equipe não o torna testador. Ele recebe dois e-mails da Apple
+  nessa ordem, e precisa aceitar o primeiro.
+- O registro no App Store Connect é criado no primeiro `eas submit` e amarra o bundle ID
+  em definitivo. Fica em `club.basefox.app.dev`, apontando para o Firebase de
+  desenvolvimento — é o único ambiente com dados semeados, e um app vazio não demonstra
+  nada. O `club.basefox.app` de produção continua livre para o lançamento real.
+- `ios.buildNumber` passa a ser explícito no `app.config.ts`: o TestFlight recusa um
+  upload cujo par (versão, build) já exista, então ele sobe à mão a cada submit que não
+  mude `APP_VERSION`.
+- A primeira build iOS **tem de ser disparada num terminal de verdade**: o EAS precisa
+  autenticar na Apple (ID + 2FA) para criar o App ID, o certificado de distribuição e o
+  provisioning profile, e escolher o time. `--non-interactive` falha nessa etapa. Depois
+  que as credenciais ficam guardadas no EAS, as builds seguintes rodam sem interação.
+
 ### Navegação
 
 Tab bar de 5 abas — **Início · Eventos · Espaço VIP · Benefícios · Perfil** — com a aba central (Espaço VIP) destacada em botão elevado, conforme `design/BFTabBar.dc.html`. Telas de detalhe empilham sobre a aba de origem. Fluxo de entrada: Onboarding → Cadastro → Torne-se membro *(pulável, e ausente com a flag desligada)* → Início.

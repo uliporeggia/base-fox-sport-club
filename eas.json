@@ -24,6 +24,9 @@
       "channel": "demo",
       "env": {
         "APP_ENV": "development"
+      },
+      "ios": {
+        "distribution": "store"
       }
     },
     "production": {
@@ -35,6 +38,9 @@
     }
   },
   "submit": {
-    "production": {}
+    "production": {},
+    "demo": {
+      "ios": {}
+    }
   }
 }

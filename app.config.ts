@@ -56,6 +56,13 @@ const appName = `Base Fox${ENV_NAME_SUFFIX[APP_ENV]}`;
 // below and by `release` further down — so the two can never drift apart.
 const APP_VERSION = '1.0.0';
 
+// iOS build number. TestFlight rejects an upload whose (version, buildNumber)
+// pair already exists, so this must be bumped by hand for every submit that
+// keeps `APP_VERSION` unchanged. It is a literal — never `process.env` — so
+// the value is identical locally and on the EAS builder; anything else makes
+// the `fingerprint` runtimeVersion diverge and aborts the build.
+const IOS_BUILD_NUMBER = '1';
+
 // Resolved purely from APP_ENV — NOT from an EAS file-type secret or
 // environment variable override (NO `process.env.GOOGLE_SERVICES_JSON`,
 // `GOOGLE_SERVICES_FILE`, etc.).
@@ -137,6 +144,19 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   ios: {
     supportsTablet: true,
     bundleIdentifier,
+    buildNumber: IOS_BUILD_NUMBER,
+    config: {
+      // Export-compliance declaration, required by App Store Connect on every
+      // upload. Without it the build lands in "Missing Compliance" and never
+      // reaches testers, however fast the processing was.
+      //
+      // `false` means "uses no NON-EXEMPT encryption". The app's only
+      // cryptography is HTTPS/TLS to Firebase and Sentry plus expo-secure-store,
+      // which delegates to the platform Keychain/Keystore — all exempt under
+      // Apple's standard-encryption exemption. There is no custom or bundled
+      // crypto anywhere in the project. Revisit this if that ever changes.
+      usesNonExemptEncryption: false,
+    },
     googleServicesFile: googleServiceInfoPlist,
   },
   android: {

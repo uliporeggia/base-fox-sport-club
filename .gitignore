@@ -47,6 +47,12 @@ functions/.runtimeconfig.json
 *-service-account*.json
 *adminsdk*.json
 serviceAccountKey.json
+# Chaves JSON de conta de servico baixadas do Google Cloud
+# (nome gerado: <project-id>-<key-id>.json — nao casa com *adminsdk*)
+base-fox-sport-club-dev-*.json
+base-fox-sport-club-staging-*.json
+base-fox-sport-club-prod-*.json
+
 
 # Firebase CLI debug logs (firebase-debug.log, dataconnect-debug.log, ...) and local emulator/cache dir
 *-debug.log

@@ -182,6 +182,14 @@ Decidido em 18/10/2026, encerrando a pendência que vinha do briefing §8.
 >
 > ⚠️ **Consequência para a fase 2:** o console adverte que *"se você optar por ganhar dinheiro, seu endereço oficial completo será exibido publicamente"*. Enquanto a mensalidade for confirmada sem cobrança, nada muda. **No dia em que a assinatura virar cobrança real, o endereço residencial do titular passa a ser público na ficha da Play Store.** Isso pesa na pergunta em aberto sobre converter para conta de organização, que até agora só considerava o nome exibido.
 
+> **Declaração de status de comerciante — 14/11/2026: _não comerciante_.** O Google exige essa declaração de toda conta nova no ato da criação, e ela é **de conta**, não de app.
+>
+> A base é a nota em negrito na própria página do Google: *"If you don't distribute apps in the European Economic Area or the United Kingdom, you can declare as a non-trader."* Pelos critérios de comerciante (remuneração, gerir publicação como negócio, status legal para atividade comercial), a Oreggia Tech **seria** comerciante se a Europa estivesse em jogo — o que dispensa é a **geografia**, não o app ser grátis. Declarar falsamente cai na Seção 10.3(a) do DDA: suspensão ou encerramento global.
+>
+> ⚠️ **Condição vinculante que isso cria:** a disponibilidade por país precisa excluir o EEE e o Reino Unido em **todas as faixas, inclusive o teste fechado dos 12 testadores**, e em qualquer app futuro desta conta. Registrar como Brasil apenas. Antes de um dia adicionar países europeus, **redeclarar como comerciante primeiro** — a declaração é editável a qualquer momento no console, sem limite.
+>
+> **O que se evitou:** numa conta pessoal, declarar comerciante publicaria **telefone e endereço completo a partir de 01/03/2027, para usuários do mundo inteiro e independentemente de monetização** — além de exigir confirmação de status app por app e um link de Termos de Serviço por app. Ou seja: o alerta de monetização acima **não é mais o único caminho** pelo qual o endereço residencial se tornaria público. Como não comerciante e sem monetização, o perfil público exibe hoje apenas nome legal, país (Brasil) e e-mail do desenvolvedor — verificado no console em 14/11/2026.
+
 O ganho decisivo é o iOS: TestFlight destravado em dois dias em vez de um mês, sem depender do D-U-N-S. O custo é a regra dos 12 testadores do Google Play, que se aplica a contas pessoais criadas após 13/11/2023.
 
 **Essa regra não é um bloqueio sequencial, e tratá-la como tal é o erro a evitar.** O relógio de 14 dias corridos começa quando o Google aprova a versão de teste fechado e 12 pessoas aderem — não exige app pronto. Uma build incompleta mas instalável já inicia a contagem. Logo: **subir algo para teste fechado cedo é tarefa de começo de projeto**, paralela ao desenvolvimento, não de véspera. Quem sai e volta reinicia a própria contagem, então os testadores precisam ser avisados a não desinstalar.

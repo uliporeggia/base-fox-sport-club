@@ -9,6 +9,22 @@ import type { Benefit, WithId } from '../../../data/types';
  */
 const MASKED_DISCOUNT_COLOR = '#B3A0C4';
 
+/**
+ * Descrição do card BLOQUEADO (tela 09 do mockup, literal).
+ *
+ * O card liberado mostra `benefit.description`, que é a copy da tela 10 e
+ * **repete o valor do desconto por extenso** ("15% de desconto nas
+ * inscrições"). Renderizar esse mesmo texto no card bloqueado anulava o
+ * mascaramento do `••% OFF` duas linhas acima — o número que o gate esconde
+ * aparecia logo abaixo dele. O mockup já previa copy própria para o estado
+ * bloqueado; é esta.
+ *
+ * Trocar por mascaramento de dígitos seria frágil: qualquer descrição futura
+ * ("válido até 31/12", "a partir de 2 unidades") viraria algo ilegível, e a
+ * copy de parceiro não está sob nosso controle.
+ */
+const LOCKED_DESCRIPTION = 'Desconto exclusivo de membro';
+
 interface BenefitCardProps {
   benefit: WithId<Benefit>;
   /** Vem exclusivamente de `useMemberAccess()` — nunca de `membershipEnabled` direto. */
@@ -42,7 +58,11 @@ export function BenefitCard({ benefit, hasMemberAccess, onPress }: BenefitCardPr
         {locked ? '••% OFF' : benefit.discount}
       </Text>
 
-      {benefit.description ? <Text style={styles.description}>{benefit.description}</Text> : null}
+      {locked ? (
+        <Text style={styles.description}>{LOCKED_DESCRIPTION}</Text>
+      ) : benefit.description ? (
+        <Text style={styles.description}>{benefit.description}</Text>
+      ) : null}
 
       <View style={styles.footerRow}>
         {locked ? (

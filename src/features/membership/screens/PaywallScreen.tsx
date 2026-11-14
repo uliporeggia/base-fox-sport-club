@@ -116,7 +116,7 @@ export default function PaywallScreen({ route, navigation }: Props): React.JSX.E
             {benefit?.code ? (
               <Text style={styles.lockedResourceCode}>{maskCode(benefit.code)}</Text>
             ) : null}
-            <Text style={styles.argument}>
+            <Text style={[styles.argument, styles.argumentOnCard]}>
               Assine para liberar este cupom e todos os benefícios de parceiros.
             </Text>
           </View>
@@ -210,6 +210,19 @@ const styles = StyleSheet.create({
     fontFamily: fontFamily.barlowRegular,
     fontSize: fontSize.lg,
     color: colors.textPrimary,
+  },
+  /**
+   * Mesma frase, dentro do card de cupom bloqueado.
+   *
+   * O `argument` acima usa `textPrimary` (#160B1E), legível sobre o fundo
+   * branco da tela. Dentro do card o fundo é `purpleDeep` (#22092F): os dois
+   * são quase o mesmo tom, e no aparelho a frase simplesmente sumia. O card já
+   * trata texto claro sobre escuro (`backgroundWhite` no parceiro e no
+   * desconto, `chipBackground` no código); este lilás claro segue a mesma
+   * linha e fica subordinado ao título branco, sem competir com ele.
+   */
+  argumentOnCard: {
+    color: colors.chipBackground,
   },
   checklistHeading: {
     fontFamily: fontFamily.sairaSemiBold,

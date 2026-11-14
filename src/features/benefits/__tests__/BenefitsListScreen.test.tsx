@@ -100,6 +100,26 @@ describe('BenefitsListScreen', () => {
     expect(within(card).getByText('Inscrições Base Fox')).toBeTruthy();
     expect(within(card).getByText('Eventos')).toBeTruthy();
     expect(await findByText('Bloqueado')).toBeTruthy();
+
+    // A descrição do estado liberado repete o desconto por extenso ("15% de
+    // desconto nas inscrições..."), o que anulava o mascaramento duas linhas
+    // acima. O card bloqueado usa a copy própria da tela 09.
+    expect(within(card).getByText('Desconto exclusivo de membro')).toBeTruthy();
+    expect(queryByText('15% de desconto nas inscrições de eventos do clube')).toBeNull();
+  });
+
+  it('não exibe dígito algum no card bloqueado — nenhuma copy de parceiro pode furar o mascaramento', async () => {
+    mockUseMemberAccess.mockReturnValue({ hasMemberAccess: false, membershipEnabled: true, isLoading: false });
+
+    const { findByText, getByTestId } = await render(<BenefitsListScreen />);
+    await findByText('••% OFF');
+
+    // Asserção estrutural, não de uma string: o ponto do gate é que o VALOR do
+    // desconto não apareça sem acesso de membro. Qualquer dígito renderizado
+    // dentro do card é, por definição, um vazamento — venha ele da descrição,
+    // do nome do parceiro ou de uma copy futura que ninguém reviu.
+    const card = getByTestId('benefit-card-b1');
+    expect(within(card).queryAllByText(/\d/)).toHaveLength(0);
   });
 
   it('filtra por categoria ao tocar um chip e instrumenta benefits_filter_applied', async () => {

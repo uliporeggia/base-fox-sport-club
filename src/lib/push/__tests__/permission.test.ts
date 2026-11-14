@@ -59,7 +59,7 @@ describe('maybeRequestPushPermission', () => {
     expect(registerDevice).toHaveBeenCalledWith('assoc-1', 'ExponentPushToken[abc]', expect.any(String));
   });
 
-  it('never asks a second time once the first RSVP has already triggered it', async () => {
+  it('never asks nem instrumenta uma segunda vez, mas segue registrando o aparelho', async () => {
     mockSignedInAs('assoc-1');
     mockExplanationAccepted();
     jest.spyOn(Notifications, 'requestPermissionsAsync').mockResolvedValue({
@@ -69,12 +69,53 @@ describe('maybeRequestPushPermission', () => {
 
     await maybeRequestPushPermission('first_rsvp');
     jest.clearAllMocks();
+    // Depois de conceder, o SO passa a responder "granted" — o mock do
+    // beforeEach ficou em "undetermined" e precisa acompanhar a realidade.
+    jest.spyOn(Notifications, 'getPermissionsAsync').mockResolvedValue({
+      status: 'granted',
+      granted: true,
+    } as never);
 
     await maybeRequestPushPermission('first_rsvp');
 
     expect(Alert.alert).not.toHaveBeenCalled();
     expect(track).not.toHaveBeenCalled();
+    // O registro NÃO é "uma vez e pronto": é a garantia de que, havendo
+    // permissão, este aparelho está em `devices`.
+    expect(registerDevice).toHaveBeenCalledWith('assoc-1', 'ExponentPushToken[abc]', expect.any(String));
+  });
+
+  it('registra o aparelho quando a permissão já foi concedida fora do app, mesmo com o pedido já marcado como feito', async () => {
+    // Cenário real encontrado em aparelho no dia 14/11/2026: a flag de "já
+    // pedimos" tinha ficado gravada de uma sessão anterior, a permissão do SO
+    // estava concedida, e `devices` continuava vazio no Firestore depois de um
+    // RSVP bem-sucedido. O push nunca chegaria, sem erro em lugar nenhum.
+    mockSignedInAs('assoc-1');
+    await AsyncStorage.setItem('@base_fox/push_permission_asked', 'true');
+    jest.spyOn(Notifications, 'getPermissionsAsync').mockResolvedValue({
+      status: 'granted',
+      granted: true,
+    } as never);
+
+    await maybeRequestPushPermission('first_rsvp');
+
+    expect(Alert.alert).not.toHaveBeenCalled();
+    expect(track).not.toHaveBeenCalled();
+    expect(registerDevice).toHaveBeenCalledWith('assoc-1', 'ExponentPushToken[abc]', expect.any(String));
+  });
+
+  it('não registra quando o pedido já foi feito e o SO nega a permissão', async () => {
+    mockSignedInAs('assoc-1');
+    await AsyncStorage.setItem('@base_fox/push_permission_asked', 'true');
+    jest.spyOn(Notifications, 'getPermissionsAsync').mockResolvedValue({
+      status: 'denied',
+      granted: false,
+    } as never);
+
+    await maybeRequestPushPermission('first_rsvp');
+
     expect(registerDevice).not.toHaveBeenCalled();
+    expect(Alert.alert).not.toHaveBeenCalled();
   });
 
   it('skips the explanation entirely when the OS permission is already settled (granted)', async () => {

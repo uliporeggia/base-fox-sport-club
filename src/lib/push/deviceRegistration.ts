@@ -1,5 +1,6 @@
 import { Platform } from 'react-native';
 import * as Notifications from 'expo-notifications';
+import * as Sentry from '@sentry/react-native';
 import Constants from 'expo-constants';
 import { registerDevice, removeDevice } from '../../data/devicesRepository';
 import type { DevicePlatform } from '../../data/types';
@@ -28,9 +29,14 @@ export async function registerCurrentDevice(associateId: string): Promise<string
     await registerDevice(associateId, token, currentPlatform());
     await setStoredDeviceToken(token);
     return token;
-  } catch {
-    // No native push capability (dev client without credentials, simulator,
-    // etc. — task 9.1 provisions the real APNs/FCM credentials separately).
+  } catch (error) {
+    // Falhar aqui é legítimo e não pode derrubar o RSVP: acontece em
+    // simulador, em dev client sem credenciais, ou sem rede no instante da
+    // chamada. O que NÃO é aceitável é falhar em silêncio — foi assim que o
+    // push ficou quebrado sem ninguém notar até alguém olhar `devices` no
+    // Firestore e ver a coleção vazia. Quem engole um erro deve ao menos
+    // contar que engoliu.
+    Sentry.captureException(error, { tags: { source: 'push.registerCurrentDevice' } });
     return null;
   }
 }

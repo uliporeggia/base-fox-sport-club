@@ -53,8 +53,12 @@ describe('useRsvp', () => {
     expect(mockMaybeRequestPushPermission).toHaveBeenCalledWith('first_rsvp');
   });
 
-  it('does not request push permission again on a later confirmation', async () => {
-    // The associate already has one prior RSVP — this is not their first ever.
+  it('aciona o fluxo de push em TODA confirmação, inclusive quando já houve RSVP antes', async () => {
+    // Este teste exigia o contrário, e era o que mantinha o bug de pé: com um
+    // RSVP anterior, o fluxo de push nunca mais era acionado e o aparelho
+    // ficava fora de `devices` para sempre. Quem garante "pedir só uma vez" é
+    // `maybeRequestPushPermission`, que tem teste próprio para isso — aqui o
+    // contrato é simplesmente: confirmou, aciona.
     mockListRsvpsByAssociate.mockResolvedValue([{ id: 'assoc-1_evt-0', associate_id: 'assoc-1', event_id: 'evt-0' }]);
 
     const { result } = await renderHook(() =>
@@ -66,7 +70,7 @@ describe('useRsvp', () => {
     });
 
     expect(mockConfirmRsvp).toHaveBeenCalledWith('assoc-1', 'evt-2');
-    expect(mockMaybeRequestPushPermission).not.toHaveBeenCalled();
+    expect(mockMaybeRequestPushPermission).toHaveBeenCalledWith('first_rsvp');
   });
 
   it('cancels an existing confirmation without requesting push permission', async () => {

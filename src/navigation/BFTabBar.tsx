@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Pressable, Image, StyleSheet } from 'react-native';
 import Svg, { Path, Rect, Circle } from 'react-native-svg';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { colors, fontFamily, fontSize } from '../theme';
 import type { MainTabParamList } from './types';
@@ -9,6 +10,18 @@ import type { MainTabParamList } from './types';
  * Custom tab bar replicating design/BFTabBar.dc.html: 5 tabs, the center one
  * (Espaço VIP) elevated in a round button. Active tint is purple, except the
  * center button which flips to orange while active.
+ *
+ * O mockup é uma imagem de uma tela de iPhone e, como tal, desenha a moldura
+ * do sistema junto com o app: altura fixa de 88 e a pílula de "home
+ * indicator" no rodapé. Copiar isso literalmente quebra em aparelho real.
+ * Com edge-to-edge (padrão do Expo no Android), o app desenha POR BAIXO da
+ * barra de navegação do sistema, e os rótulos das abas ficavam encobertos
+ * pelos botões ◀ ● ■ — relatado pelo usuário no moto g 100 em 14/11/2026.
+ *
+ * Por isso: a altura passa a ser 88 MAIS a área segura inferior, e a pílula
+ * desenhada por nós sai de cena. Ela é moldura do sistema operacional, não do
+ * app: no iPhone o próprio iOS desenha a dele, e a nossa ficaria duplicada
+ * dentro da mesma faixa; no Android ela não deveria existir.
  */
 
 type TabKey = keyof MainTabParamList;
@@ -57,9 +70,19 @@ function TabIcon({ tab, color }: { tab: TabKey; color: string }): React.JSX.Elem
   }
 }
 
+/** Altura da barra sem contar a área reservada ao sistema (mockup: 88). */
+const BAR_CONTENT_HEIGHT = 88;
+
 export function BFTabBar({ state, descriptors, navigation }: BottomTabBarProps): React.JSX.Element {
+  const insets = useSafeAreaInsets();
+
   return (
-    <View style={styles.bar}>
+    <View
+      style={[
+        styles.bar,
+        { height: BAR_CONTENT_HEIGHT + insets.bottom, paddingBottom: insets.bottom },
+      ]}
+    >
       {TAB_ORDER.map((tab) => {
         const routeIndex = state.routes.findIndex((route) => route.name === tab);
         if (routeIndex === -1) return null;
@@ -111,7 +134,6 @@ export function BFTabBar({ state, descriptors, navigation }: BottomTabBarProps):
           </Pressable>
         );
       })}
-      <View pointerEvents="none" style={styles.homeIndicator} />
     </View>
   );
 }
@@ -120,7 +142,7 @@ const styles = StyleSheet.create({
   bar: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    height: 88,
+    // `height` sai daqui: depende da área segura e é aplicada no componente.
     paddingTop: 8,
     paddingHorizontal: 4,
     backgroundColor: colors.backgroundWhite,
@@ -154,15 +176,5 @@ const styles = StyleSheet.create({
   vipButtonLogo: {
     width: 34,
     height: 34,
-  },
-  homeIndicator: {
-    position: 'absolute',
-    left: '50%',
-    bottom: 8,
-    width: 134,
-    height: 5,
-    marginLeft: -67,
-    borderRadius: 3,
-    backgroundColor: colors.textPrimary,
   },
 });

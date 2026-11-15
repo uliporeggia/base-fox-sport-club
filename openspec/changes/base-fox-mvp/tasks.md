@@ -9,7 +9,8 @@ Estas não custam esforço, custam **tempo de terceiro**. Nenhuma acelera com ma
 - [x] 0.5 Criar a conta **pessoal** no Google Play Console (US$ 25, taxa única)
 - [ ] 0.6 Recrutar os 12 testadores do teste fechado do Google Play, com o cliente, e avisá-los a não desinstalar o app — sair e voltar reinicia a contagem individual de 14 dias
 - [ ] 0.7 Subir ao teste fechado do Google Play a primeira build instalável, ainda que incompleta, para iniciar o relógio de 14 dias corridos em paralelo ao desenvolvimento
-- [ ] 0.8 Criar a conta e a organização no Sentry, com um projeto React Native, e obter DSN, slug e auth token — lacuna descoberta em 06/11/2026: a instrumentação das tarefas 2.2 a 2.4 existe e está correta, mas o `dsn` resolve vazio e **o app nunca reportou um único erro**. Fazer antes dos 12 testadores: ligar o Sentry muda o fingerprint do runtime e exige build nova, o que depois do teste fechado significaria reinstalação por todos eles — e quem reinstala reinicia a própria contagem de 14 dias
+- [x] 0.8 Criar a conta e a organização no Sentry, com um projeto React Native, e obter DSN, slug e auth token — a lacuna de 06/11/2026 (`dsn` vazio, nenhum erro reportado) está fechada: o DSN é literal em `app.config.ts` desde `03071da` e em 15/11/2026 o pipeline foi provado ponta a ponta no moto g 100 com uma sonda temporária publicada por OTA só para Android e revertida em seguida. Evento `8b5cbc3fc67b4a5f92d7dd3139d4f010` (issue `BASE-FOX-SPORT-CLUB-1`) chegou com `environment=development`, `release=1.0.0+development` e `dist=01a1e01d-810c-746b-acef-f0af8d6e570c` — o UUID exato do update OTA, não `embedded` nem `unknown`, o que prova de passagem o `resolveDist` da 2.2.ota. Depois da reversão, os cold starts no bundle limpo pararam de gerar eventos. **Só o Android foi exercitado** — o iOS fica na 0.8a
+- [ ] 0.8a Provar o mesmo caminho do Sentry no iOS — a metade iOS da 0.8. Exige autorização explícita antes: no iOS o canal `demo` chega apenas ao iPhone do cliente e ao de Patricia, e não existe aparelho iOS próprio aqui, então a sonda de OTA que funcionou no Android alcançaria testadores reais. Alternativa sem risco: esperar o primeiro erro genuíno vindo de um dos dois aparelhos
 
 ## 1. Setup do projeto e infraestrutura
 
@@ -30,6 +31,7 @@ Estas não custam esforço, custam **tempo de terceiro**. Nenhuma acelera com ma
 - [x] 2.2 Integrar o Sentry com `environment` e `release` preenchidos a partir do build EAS, e adicionar o error boundary no componente raiz
 - [x] 2.3 Configurar o listener de navegação para `screen_view` automático e breadcrumbs de navegação no Sentry
 - [x] 2.4 Criar o módulo de instrumentação que centraliza o envio de eventos, com proteção contra envio de e-mail, nome e valor monetário como parâmetro
+- [ ] 2.5 Subir os source maps dos bundles publicados por `eas update` — descoberto em 15/11/2026 ao validar a 0.8: o Sentry recebeu o evento mas respondeu "source maps weren't applied" (debug ID `a4a100dc-c267-4a84-a7ec-11347b85bbc8` sem arquivo correspondente), porque o upload acontece no `eas build` e não no `eas update`. As correções recentes do Android foram entregues por OTA, então a stack trace de um testador vem desses bundles e chega minificada. O upload precisa rodar por update, com o `dist` igual ao ID do update. A simbolização do bundle **embarcado** não foi testada — a release `1.0.0+development` criada em 12/11 prova que o token e a criação de release funcionam, não que os frames do binário resolvam
 
 ## 3. Membership — flag, gate e telas de assinatura
 

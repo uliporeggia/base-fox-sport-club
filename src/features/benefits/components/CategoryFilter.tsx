@@ -19,6 +19,7 @@ export function CategoryFilter({ selected, onSelect }: CategoryFilterProps): Rea
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
+      style={styles.scroller}
       contentContainerStyle={styles.row}
       testID="benefits-category-filter"
     >
@@ -42,6 +43,22 @@ export function CategoryFilter({ selected, onSelect }: CategoryFilterProps): Rea
 }
 
 const styles = StyleSheet.create({
+  /**
+   * Uma ScrollView horizontal colocada como filha de um container em coluna
+   * cresce no eixo vertical para ocupar o espaço livre, e os chips crescem
+   * junto — eles não têm altura própria, só padding. O resultado é um chip de
+   * ~430px de altura quando a lista abaixo é curta, que foi como o bug
+   * apareceu: filtrando por "Alimentação" sobram dois cards, e toda a folga
+   * da tela vai para os chips. Com a lista cheia o defeito se esconde, que é
+   * por que ele passou pela validação anterior.
+   *
+   * `flexGrow: 0` faz a barra medir o próprio conteúdo; `flexShrink: 0`
+   * impede o oposto, ela ser espremida quando a lista é longa.
+   */
+  scroller: {
+    flexGrow: 0,
+    flexShrink: 0,
+  },
   row: {
     gap: spacing.sm,
     paddingHorizontal: spacing.xxl,

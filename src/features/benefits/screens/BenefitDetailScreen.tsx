@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Platform, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as Clipboard from 'expo-clipboard';
 import * as WebBrowser from 'expo-web-browser';
@@ -88,6 +89,7 @@ export default function BenefitDetailScreen({ route }: Props): React.JSX.Element
   }
 
   return (
+    <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
     <ScrollView style={styles.container} contentContainerStyle={styles.content} testID="benefit-detail-scroll">
       <View style={styles.headerRow}>
         <Text style={styles.category}>{benefit.category}</Text>
@@ -131,10 +133,17 @@ export default function BenefitDetailScreen({ route }: Props): React.JSX.Element
         <Text style={styles.validUntil}>Válido até {formatValidUntil(benefit.valid_until.toDate())}</Text>
       ) : null}
     </ScrollView>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  // Mesma correção da lista: esta tela também não tinha área segura e o
+  // conteúdo começava colado na barra de status.
+  safeArea: {
+    flex: 1,
+    backgroundColor: colors.backgroundWhite,
+  },
   container: {
     flex: 1,
     backgroundColor: colors.backgroundWhite,

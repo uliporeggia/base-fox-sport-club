@@ -1,5 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import type { CompositeNavigationProp } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -73,7 +74,7 @@ export default function BenefitsListScreen(): React.JSX.Element {
   const isLoading = isGateLoading || isBenefitsLoading;
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container} edges={['top', 'left', 'right']}>
       <View style={styles.header}>
         <Text style={styles.title}>Benefícios</Text>
         {!hasMemberAccess ? (
@@ -114,7 +115,7 @@ export default function BenefitsListScreen(): React.JSX.Element {
           ) : null}
         </ScrollView>
       )}
-    </View>
+    </SafeAreaView>
   );
 }
 
@@ -123,6 +124,10 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.backgroundMuted,
   },
+  // Sem a área segura o título "Benefícios" encostava na barra de status.
+  // Todas as outras telas do app já usavam SafeAreaView; só as duas da
+  // feature de benefícios ficaram de fora — resquício do trabalho em
+  // paralelo, em que cada agente cuidava apenas dos próprios arquivos.
   header: {
     paddingHorizontal: spacing.xxl,
     paddingTop: spacing.xxl,

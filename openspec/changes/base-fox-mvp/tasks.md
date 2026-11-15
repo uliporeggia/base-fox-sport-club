@@ -2,8 +2,8 @@
 
 Estas não custam esforço, custam **tempo de terceiro**. Nenhuma acelera com mais trabalho, e todas rodam em paralelo ao desenvolvimento. Atrasar o disparo delas atrasa o lançamento inteiro.
 
-- [ ] 0.1 Criar a conta Strava dedicada da Oreggia Tech (e-mail da empresa, não conta pessoal de corrida) e assinar o Strava — a assinatura é obrigatória para a API desde 06/2026 e fica atrelada à conta dona
-- [ ] 0.2 Registrar a aplicação Strava nessa conta e fazer o auto-upgrade para 10 atletas, disponível sem review
+- [x] 0.1 Criar a conta Strava dedicada da Oreggia Tech (e-mail da empresa, não conta pessoal de corrida) e assinar o Strava — a assinatura é obrigatória para a API desde 06/2026 e fica atrelada à conta dona
+- [x] 0.2 Registrar a aplicação Strava nessa conta e fazer o auto-upgrade para 10 atletas, disponível sem review
 - [ ] 0.3 Solicitar ao Strava o aumento de capacidade acima de 10 atletas — review sem SLA publicado; é o item de prazo mais imprevisível do projeto
 - [x] 0.4 Matricular a Oreggia Tech no Apple Developer Program como **pessoa física** (24 a 48 h, sem D-U-N-S)
 - [x] 0.5 Criar a conta **pessoal** no Google Play Console (US$ 25, taxa única)
@@ -109,7 +109,7 @@ Estas não custam esforço, custam **tempo de terceiro**. Nenhuma acelera com ma
 
 ## 9. Notificações e push
 
-- [ ] 9.1 Resolver a titularidade da conta Apple Developer e obter a chave APNs, além das credenciais FCM — bloqueia o push no iOS
+- [x] 9.1 Resolver a titularidade da conta Apple Developer e obter a chave APNs, além das credenciais FCM — bloqueia o push no iOS
 - [x] 9.2 Implementar a caixa de entrada de notificações (14) agrupada por período, com título, texto, tempo relativo e destaque nas não lidas, com estado vazio
 - [x] 9.3 Implementar a marcação automática como lidas ao visualizar e a ação de marcar todas como lidas
 - [x] 9.4 Implementar o sino no cabeçalho da Home com indicador de não lidas e navegação para a caixa de entrada — único ponto de entrada da caixa

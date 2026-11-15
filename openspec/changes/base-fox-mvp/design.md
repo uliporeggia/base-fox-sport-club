@@ -225,6 +225,8 @@ A change anterior tratou o Strava como integração gratuita e sem limite. **Ess
 
 **1. A API exige assinatura paga do Strava.** Obrigatória desde 01/06/2026 para desenvolvedores novos no Standard Tier. Apps no Extended Access (10.000+ atletas conectados) são isentos. É um custo recorrente da conta de desenvolvedor, não do app.
 
+> **Preço verificado em 14/11/2026**, na página de assinatura com IP e conta do Brasil: **Individual mensal R$ 22,90** ou **anual R$ 149,90 (R$ 12,49/mês)**, os dois com **30 dias grátis**. Cobrança em reais, **sem IOF** — ao contrário da Apple. O levantamento anterior usava o preço americano (US$ 79,99/ano ≈ R$ 38/mês convertido), e por isso superestimava esta linha em ~40%. **Escolhido o mensal**, para não comprometer um ano enquanto o piloto não está validado — a diferença é R$ 124,90/ano se o projeto seguir.
+
 **2. O teto de atletas conectados começa em 1.**
 
 ```

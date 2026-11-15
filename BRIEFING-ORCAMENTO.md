@@ -2,7 +2,7 @@
 
 **Para:** gerar o documento no Claude Design.
 **Escrito em:** 18/10/2026, a partir do levantamento de preços feito nas fontes oficiais na mesma data.
-**Revisado em:** 27/10/2026 — câmbio atualizado para a PTAX de 26/10/2026, inclusão do custo de ativação do Google Cloud e correção de duas premissas, ambas verificadas no provisionamento real.
+**Revisado em:** 14/11/2026 — preço brasileiro da assinatura Strava verificado na página com IP e conta do Brasil (lacuna que a revisão anterior deixou aberta), com queda do custo recorrente do piloto. Revisão de 27/10/2026: câmbio atualizado para a PTAX de 26/10/2026, inclusão do custo de ativação do Google Cloud e correção de duas premissas.
 
 ---
 
@@ -66,7 +66,7 @@ Uma frase e um número grande:
 
 > **No regime do piloto, a infraestrutura do app custa cerca de R$ 85 por mês.**
 
-Logo abaixo, a composição em uma linha: duas assinaturas anuais obrigatórias (Apple e Strava); todo o restante — banco de dados, autenticação, servidor, notificações push e monitoramento de erros — cabe nos planos gratuitos.
+Logo abaixo, a composição em uma linha: duas assinaturas obrigatórias — Apple anual em dólar, Strava mensal em reais; todo o restante — banco de dados, autenticação, servidor, notificações push e monitoramento de erros — cabe nos planos gratuitos.
 
 ### 4.2 Tabela 1 — Custos recorrentes no piloto
 
@@ -79,8 +79,10 @@ Câmbio **R$ 5,5007** (PTAX de fechamento de 26/10/2026, Banco Central), **IOF 3
 | Sentry                      | Monitoramento de erros e travamentos               | Developer            | 0,00      | 0       |
 | Firebase Cloud Messaging    | Entrega das notificações push                      | —                    | 0,00      | 0       |
 | **Apple Developer Program** | Publicar na App Store **e** chave de push do iOS   | —                    | **8,25**  | **47**  |
-| **Assinatura Strava**       | Acesso à API do Strava (obrigatória desde 06/2026) | Standard             | **6,67**  | **38**  |
-|                             |                                                    | **Total**            | **14,92** | **~85** |
+| **Assinatura Strava**       | Acesso à API do Strava (obrigatória desde 06/2026) | Individual mensal    | —         | **22,90** |
+|                             |                                                    | **Total**            | **8,25**  | **~70** |
+
+> A assinatura do Strava é **cobrada em reais, pelo preço brasileiro, sem IOF** — verificado na página de assinatura em 14/11/2026. Só a Apple é cobrada em dólar, então só ela varia com o câmbio.
 
 **Custos de entrada, uma única vez:**
 
@@ -98,17 +100,17 @@ Esta é a tabela que o cliente vai querer. Duas colunas de total, porque **a dec
 
 | Usuários ativos/mês | Firebase | EAS Update | Sentry | Strava | Apple | **Total com OTA** | **Total sem OTA** |
 | -------------------:| --------:| ----------:| ------:| ------:| -----:| -----------------:| -----------------:|
-| 100                 | R$ 0     | R$ 0       | R$ 0   | R$ 38  | R$ 47 | **R$ 85**         | **R$ 85**         |
-| 500                 | R$ 0     | R$ 0       | R$ 0   | R$ 38  | R$ 47 | **R$ 85**         | **R$ 85**         |
-| 1.000               | R$ 0     | R$ 0       | R$ 0   | R$ 38  | R$ 47 | **R$ 85**         | **R$ 85**         |
-| 2.500               | R$ 0     | R$ 108     | R$ 0   | R$ 38  | R$ 47 | **R$ 193**        | **R$ 85**         |
-| 5.000               | R$ 0     | R$ 165     | R$ 0   | R$ 38  | R$ 47 | **R$ 250**        | **R$ 85**         |
-| 10.000              | R$ 2     | R$ 307     | R$ 0   | R$ 38  | R$ 47 | **R$ 394**        | **R$ 87**         |
-| 25.000              | R$ 12    | R$ 734     | R$ 0   | R$ 38  | R$ 47 | **R$ 831**        | **R$ 97**         |
+| 100                 | R$ 0     | R$ 0       | R$ 0   | R$ 23  | R$ 47 | **R$ 70**         | **R$ 70**         |
+| 500                 | R$ 0     | R$ 0       | R$ 0   | R$ 23  | R$ 47 | **R$ 70**         | **R$ 70**         |
+| 1.000               | R$ 0     | R$ 0       | R$ 0   | R$ 23  | R$ 47 | **R$ 70**         | **R$ 70**         |
+| 2.500               | R$ 0     | R$ 108     | R$ 0   | R$ 23  | R$ 47 | **R$ 178**        | **R$ 70**         |
+| 5.000               | R$ 0     | R$ 165     | R$ 0   | R$ 23  | R$ 47 | **R$ 235**        | **R$ 70**         |
+| 10.000              | R$ 2     | R$ 307     | R$ 0   | R$ 23  | R$ 47 | **R$ 379**        | **R$ 72**         |
+| 25.000              | R$ 12    | R$ 734     | R$ 0   | R$ 23  | R$ 47 | **R$ 816**        | **R$ 82**         |
 
-> *Valores em real arredondados para o inteiro; os totais são calculados sobre os valores exatos em dólar, então podem diferir em R$ 1 da soma das colunas arredondadas.*
+> *Valores em real arredondados para o inteiro. A linha do Strava é preço fechado em reais (R$ 22,90); as demais são conversão de dólar. Os totais são calculados sobre os valores exatos, então podem diferir em R$ 1 da soma das colunas arredondadas.*
 
-**O achado que o documento precisa deixar explícito:** sem atualização OTA, o custo vai de **R$ 85 a R$ 97 por mês entre 100 e 25.000 usuários** — praticamente plano. O Firebase, que é o que todo mundo teme, custa **R$ 12/mês a 25.000 usuários**. Quem puxa a curva para cima é exclusivamente o EAS Update.
+**O achado que o documento precisa deixar explícito:** sem atualização OTA, o custo vai de **R$ 70 a R$ 82 por mês entre 100 e 25.000 usuários** — praticamente plano. O Firebase, que é o que todo mundo teme, custa **R$ 12/mês a 25.000 usuários**. Quem puxa a curva para cima é exclusivamente o EAS Update.
 
 Vale uma frase explicando o que se compra com ele: atualização OTA permite corrigir bugs e ajustar telas **sem passar por nova revisão da App Store**, que leva dias. É conveniência operacional, não requisito.
 
@@ -184,9 +186,9 @@ Curta, mas obrigatória — é o que protege a Oreggia Tech se a conta vier dife
 
 O documento precisa declarar isto abertamente — é o que o torna defensável:
 
-- **Câmbio de R$ 5,5007 em 26/10/2026** (PTAX de fechamento do Banco Central), mais **IOF de 3,5%** sobre cobranças em dólar no cartão. Variação cambial altera os valores em real, e não é hipótese remota: entre 23/10 e 26/10/2026 o dólar subiu de R$ 5,0377 para R$ 5,5007 — cerca de 9% em um pregão — o que sozinho elevou o total do piloto de R$ 79 para R$ 85 por mês. Os valores em real valem para a data da cotação, não para o mês.
+- **Câmbio de R$ 5,5007 em 26/10/2026** (PTAX de fechamento do Banco Central), mais **IOF de 3,5%** sobre cobranças em dólar no cartão. Variação cambial altera os valores em real, e não é hipótese remota: entre 23/10 e 26/10/2026 o dólar subiu de R$ 5,0377 para R$ 5,5007 — cerca de 9% em um pregão. **Desde 14/11/2026 a exposição ao câmbio é menor**: só a Apple é cobrada em dólar, porque o Strava passou a entrar pelo preço brasileiro em reais. O valor em real da linha da Apple vale para a data da cotação, não para o mês.
 - **A Apple cobra em dólar, não em reais.** Verificado na matrícula em 25/10/2026: como a loja online brasileira não vende a assinatura, a Apple apresenta um formulário de cartão e cobra **US$ 99 em dólar**. O valor em real é sempre conversão mais IOF, e muda a cada renovação conforme o câmbio.
-- **O preço da assinatura Strava no Brasil difere do americano.** O valor usado (US$ 79,99/ano) é o preço dos EUA.
+- ~~O preço da assinatura Strava no Brasil difere do americano.~~ **Resolvido em 14/11/2026.** A estimativa anterior partia do preço americano (US$ 79,99/ano ≈ R$ 38/mês com IOF). O preço brasileiro, lido na página com IP e conta do Brasil, é **R$ 22,90/mês no plano Individual mensal** (ou R$ 149,90/ano, R$ 12,49/mês, no anual). Cobrança em reais, sem IOF. Optou-se pelo mensal, para não comprometer um ano enquanto o piloto não está validado. Os dois planos têm 30 dias grátis.
 - **O consumo por usuário é estimado a partir das telas desenhadas**: cerca de 200 leituras e 20 escritas por usuário ativo por mês, assumindo 10 sessões mensais. Vai ser medido de verdade no piloto, com os dados do próprio Firebase.
 - **Os preços unitários do Firestore** usados nas projeções acima da cota gratuita são de ordem de grandeza, região Estados Unidos. As cotas gratuitas são números oficiais do Google.
 - **O faturamento do Google Cloud no Brasil sai em reais**, por entidade local e sem IOF — confirmado no provisionamento em 25/10/2026. Mas há um requisito que o levantamento de 18/10 não previa: contas brasileiras novas exigem um **pagamento antecipado de ativação de R$ 150**, sem o qual a conta de faturamento permanece fechada e as rotinas de servidor não rodam. O valor vira saldo abatido do uso, então não altera o custo recorrente — altera o custo de entrada.
@@ -207,7 +209,6 @@ O documento precisa declarar isto abertamente — é o que o torna defensável:
 
 | Lacuna                                              | Como resolver                                                                                        |
 | --------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| Preço da assinatura Strava no Brasil                | Consultar a página de assinatura do Strava com IP/conta brasileira                                   |
 | Nome e cargo do destinatário no cliente             | Preencher na capa                                                                                    |
 | A Oreggia Tech vai operar as contas ou só orientar? | Muda o tom da seção 4.5 — se o cliente opera, vira instrução; se operamos nós, vira pedido de acesso |
 

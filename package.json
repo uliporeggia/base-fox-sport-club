@@ -12,7 +12,8 @@
     "test": "jest --passWithNoTests",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
-    "seed": "NODE_PATH=functions/node_modules node scripts/seed.ts"
+    "seed": "NODE_PATH=functions/node_modules node scripts/seed.ts",
+    "update": "bash scripts/eas-update.sh"
   },
   "dependencies": {
     "@expo-google-fonts/barlow": "^0.4.1",

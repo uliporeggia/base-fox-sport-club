@@ -61,7 +61,7 @@ const APP_VERSION = '1.0.0';
 // keeps `APP_VERSION` unchanged. It is a literal — never `process.env` — so
 // the value is identical locally and on the EAS builder; anything else makes
 // the `fingerprint` runtimeVersion diverge and aborts the build.
-const IOS_BUILD_NUMBER = '1';
+const IOS_BUILD_NUMBER = '2';
 
 // Resolved purely from APP_ENV — NOT from an EAS file-type secret or
 // environment variable override (NO `process.env.GOOGLE_SERVICES_JSON`,

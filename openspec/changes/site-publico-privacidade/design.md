@@ -12,6 +12,8 @@ As duas últimas são condição para publicar. A primeira é insumo da tarefa *
 
 A infraestrutura já existe: o projeto `base-fox-sport-club-prod` tem site de Hosting provisionado em `https://base-fox-sport-club-prod.web.app`, hoje vazio. Não há custo novo.
 
+O layout também já existe: o canvas **https://claude.ai/artifact/RMgekcJJ9ZvoLyuWG2R84H** traz as três páginas desenhadas e as quatro peças de publicação nas medidas exatas. Ele é referência de layout e de conteúdo, e os colchetes nele marcam o que ainda depende de decisão.
+
 O que não existe é conteúdo — e a parte mais difícil dele não é técnica. A política de privacidade é documento jurídico, precisa refletir o que o aplicativo de fato faz, e precisa nomear um controlador de dados que a restrição de marca do projeto dificulta nomear.
 
 ## Goals / Non-Goals

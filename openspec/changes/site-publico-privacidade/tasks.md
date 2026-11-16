@@ -15,7 +15,9 @@ Custam tempo de outras pessoas, não esforço. Atrasar o disparo atrasa a public
 
 ## 2. Estrutura do site
 
-- [ ] 2.1 Criar o diretório de fontes do site, com três páginas HTML estáticas e uma folha de estilo, sem build e sem dependências
+Layout e conteúdo de referência: **https://claude.ai/artifact/RMgekcJJ9ZvoLyuWG2R84H** (canvas "Site Base Fox — mockup", privado). Os trechos entre colchetes nele são as decisões em aberto, não texto a copiar.
+
+- [ ] 2.1 Criar o diretório de fontes do site, com três páginas HTML estáticas e uma folha de estilo, sem build e sem dependências, seguindo o canvas de referência
 - [ ] 2.2 Aplicar a identidade visual a partir de `design/README.md` — cores, Saira e Barlow — sem importar o tema do app
 - [ ] 2.3 Garantir legibilidade em largura de celular, com as três páginas linkadas entre si
 
@@ -45,7 +47,17 @@ Custam tempo de outras pessoas, não esforço. Atrasar o disparo atrasa a public
 - [ ] 5.5 Trocar o campo **Site** da aplicação Strava `297349`, de LinkedIn para a URL do site
 - [ ] 5.6 Registrar fora desta change, como **bloqueio de publicação**, a pendência da exclusão de conta **dentro do aplicativo** — o Google Play exige as duas vias e esta change entrega só a web
 - [ ] 5.7 Enviar o rascunho da política ao cliente para revisão jurídica, em paralelo às demais tarefas, não como último passo
+- [ ] 5.8 Exportar do canvas, a 1×, o **gráfico de destaque 1024×500** e o **ícone 512×512**, e enviá-los na ficha do Google Play
+- [ ] 5.9 Exportar do canvas, a 1×, o **cabeçalho 4096×2304** e enviá-lo na página do desenvolvedor do Play, junto com o ícone 512×512 e o texto promocional de até 140 caracteres — os três estão marcados como obrigatórios e vazios
+- [ ] 5.10 Exportar a **og:image 1200×630** e referenciá-la nos metadados das três páginas do site
 
 ## 6. Só depois de tudo acima
 
 - [ ] 6.1 Solicitar ao Strava o aumento de capacidade acima de 10 atletas (tarefa 0.3 da change `base-fox-mvp`), agora com um site que sustenta o pedido
+
+## 7. Fora desta change, mas na mesma superfície visual
+
+Registrar e encaminhar ao builder — mexem na build do app, não no site.
+
+- [ ] 7.1 Trocar o **ícone embarcado do app**, hoje o padrão do Expo (`assets/icon.png` e `assets/android-icon-foreground.png` são o "A" azul com guias de construção), pelos arquivos já gerados em `brand-assets/`
+- [ ] 7.2 Produzir as **capturas de tela** da ficha das lojas — dependem do app rodando, não de desenho. No Play: mínimo de 2, entre 320 e 3840 px, lado maior no máximo o dobro do menor

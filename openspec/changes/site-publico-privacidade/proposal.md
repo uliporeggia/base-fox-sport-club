@@ -15,6 +15,26 @@ Nenhuma dessas três é negociável e todas têm prazo: a 0.7 (teste fechado) n�
 
 **Não entra nesta change:** o caminho de exclusão **dentro do app**, que o Google Play também exige. Esta change cobre o lado web; o lado in-app é trabalho de produto e precisa de tarefa própria — ver Impact.
 
+## Design de referência
+
+As três páginas já estão desenhadas, e com elas as peças de publicação que dependiam da mesma identidade visual:
+
+**https://claude.ai/artifact/RMgekcJJ9ZvoLyuWG2R84H** — canvas "Site Base Fox — mockup", **privado** (só abre para o dono até ser compartilhado pelo menu Share da página).
+
+| Prancheta | Medida | Para onde vai |
+| --- | --- | --- |
+| Raiz, Privacidade, Exclusão de conta | fluidas, 1280 de referência | o site desta change |
+| Ícone | 512×512 | ficha do Google Play |
+| og:image | 1200×630 | metadados do site |
+| Gráfico de destaque | 1024×500 | ficha do Google Play |
+| Cabeçalho | 4096×2304 | página do desenvolvedor no Play |
+
+Cada peça está no **tamanho exato** do campo que a recebe, então exportar a prancheta a 1× já entrega o arquivo na medida.
+
+O mockup é referência de layout e de conteúdo, **não substitui as decisões em aberto**: os trechos entre colchetes nas páginas de privacidade e de exclusão marcam exatamente o que ainda depende do cliente e da auditoria do código.
+
+Os **ícones** não saem do canvas — foram gerados em `brand-assets/`, compostos do símbolo da marca sobre o roxo `#5A1886`, nas medidas que cada loja e o app exigem. Os **banners com texto** saem por exportação do canvas, porque usam Saira e Barlow.
+
 ## Capabilities
 
 ### New Capabilities

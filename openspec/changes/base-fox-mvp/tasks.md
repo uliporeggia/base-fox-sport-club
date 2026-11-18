@@ -8,7 +8,7 @@ Estas não custam esforço, custam **tempo de terceiro**. Nenhuma acelera com ma
 - [x] 0.4 Matricular a Oreggia Tech no Apple Developer Program como **pessoa física** (24 a 48 h, sem D-U-N-S)
 - [x] 0.5 Criar a conta **pessoal** no Google Play Console (US$ 25, taxa única)
 - [ ] 0.6 Recrutar os 12 testadores do teste fechado do Google Play, com o cliente, e avisá-los a não desinstalar o app — sair e voltar reinicia a contagem individual de 14 dias
-- [ ] 0.7 Subir ao teste fechado do Google Play a primeira build instalável, ainda que incompleta, para iniciar o relógio de 14 dias corridos em paralelo ao desenvolvimento
+- [ ] 0.7 Subir ao teste fechado do Google Play a primeira build instalável, ainda que incompleta, para iniciar o relógio de 14 dias corridos em paralelo ao desenvolvimento — ⚠️ a build do teste fechado tem de ser cortada **depois da `24897b0`**: a `dfcda272` carrega embarcado o bug do Android 13, e quem confirmar presença na primeira sessão marca a flag de "já perguntou" antes de qualquer OTA chegar, ficando sem push para sempre
 - [x] 0.8 Criar a conta e a organização no Sentry, com um projeto React Native, e obter DSN, slug e auth token — a lacuna de 06/11/2026 (`dsn` vazio, nenhum erro reportado) está fechada: o DSN é literal em `app.config.ts` desde `03071da` e em 15/11/2026 o pipeline foi provado ponta a ponta no moto g 100 com uma sonda temporária publicada por OTA só para Android e revertida em seguida. Evento `8b5cbc3fc67b4a5f92d7dd3139d4f010` (issue `BASE-FOX-SPORT-CLUB-1`) chegou com `environment=development`, `release=1.0.0+development` e `dist=01a1e01d-810c-746b-acef-f0af8d6e570c` — o UUID exato do update OTA, não `embedded` nem `unknown`, o que prova de passagem o `resolveDist` da 2.2.ota. Depois da reversão, os cold starts no bundle limpo pararam de gerar eventos. **Só o Android foi exercitado** — o iOS fica na 0.8a
 - [ ] 0.8a Provar o caminho do Sentry no iOS — a metade iOS da 0.8. **Decidido em 18/11/2026:** esperar um erro genuíno vindo do iPhone do cliente ou da Patricia, que prova a mesma coisa sem custo. Se até o **próximo release de dev no TestFlight** nada tiver chegado, publicar junto a sonda inofensiva (`Sentry.captureException`, nunca `throw`) — autorizado pelo Uli nessa condição. Lembrar que o iOS só volta a receber OTA depois que o cliente instalar a `1.0.0 (2)`
 
@@ -111,7 +111,7 @@ Estas não custam esforço, custam **tempo de terceiro**. Nenhuma acelera com ma
 
 ## 9. Notificações e push
 
-- [x] 9.1 Resolver a titularidade da conta Apple Developer e obter a chave APNs, além das credenciais FCM — bloqueia o push no iOS
+- [x] 9.1 Resolver a titularidade da conta Apple Developer e obter a chave APNs, além das credenciais FCM — bloqueia o push no iOS — ⚠️ a prova foi em **Android 12**, onde a permissão já nasce concedida; o caminho do Android 13+ só passou a funcionar com a `24897b0`
 - [x] 9.2 Implementar a caixa de entrada de notificações (14) agrupada por período, com título, texto, tempo relativo e destaque nas não lidas, com estado vazio
 - [x] 9.3 Implementar a marcação automática como lidas ao visualizar e a ação de marcar todas como lidas
 - [x] 9.4 Implementar o sino no cabeçalho da Home com indicador de não lidas e navegação para a caixa de entrada — único ponto de entrada da caixa
@@ -121,7 +121,7 @@ Estas não custam esforço, custam **tempo de terceiro**. Nenhuma acelera com ma
 - [x] 9.7 Implementar as Cloud Functions de disparo para os três tipos — novo evento com espaço VIP, presença confirmada e nova parceria — escrevendo sempre em `notifications` independentemente da entrega
 - [x] 9.8 Implementar a remoção de tokens recusados pelo serviço de push durante o envio
 - [x] 9.9 Implementar a abertura do app na tela referenciada ao tocar na notificação do sistema
-- [ ] 9.10 Verificar em dispositivo físico (iOS e Android) que o app permanece plenamente utilizável com a permissão negada
+- [ ] 9.10 Verificar em dispositivo físico (iOS e Android) que o app permanece plenamente utilizável com a permissão negada — **Android provado em 18/11/2026** em emulador Android 13 (API 33, AVD `bf-api33`), que é onde o pedido existe de verdade; o moto g roda Android 12 e lá não há pedido em tempo de execução. A verificação encontrou e derrubou o bug da `24897b0`. Com a correção: a explicação aparece, o diálogo do sistema aparece, negando — flag `USER_SET` no `dumpsys` — a presença é confirmada assim mesmo, as cinco abas navegam, o Perfil mostra "Ative nas configurações do sistema", nenhum documento novo em `devices`, e a segunda confirmação não pergunta de novo (9.5). **Falta a metade iOS**, pelo mesmo impedimento da 0.8a
 - [x] 9.11 Instrumentar `notifications_viewed`, `notifications_marked_read` e `push_permission_result`
 
 ## 10. Dados iniciais, auditoria de restrições e validação do piloto

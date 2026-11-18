@@ -30,6 +30,29 @@ export async function explainAndRequestPermission(): Promise<boolean> {
 
 export type OsPermissionStatus = 'granted' | 'denied' | 'undetermined';
 
+export interface OsPermissionState {
+  status: OsPermissionStatus;
+  /**
+   * Se o sistema ainda aceita exibir o pedido. É este, e não o `status`, o
+   * portão certo para decidir se vale perguntar.
+   *
+   * No Android 13+ (com `targetSdkVersion >= 33`) o expo-notifications deriva
+   * o `status` de `areNotificationsEnabled()`, que é falso para quem nunca
+   * concedeu a permissão — então quem nunca foi perguntado chega aqui como
+   * 'denied', jamais como 'undetermined'. O `canAskAgain`, esse sim, vem da
+   * resposta nativa por permissão: 'undetermined' enquanto `didAsk` for falso,
+   * e portanto `true`. Ele só vira falso quando o usuário bloqueia de vez.
+   */
+  canAskAgain: boolean;
+}
+
+export async function getOsPermissionState(): Promise<OsPermissionState> {
+  const response = await Notifications.getPermissionsAsync();
+  const status: OsPermissionStatus =
+    response.status === 'granted' ? 'granted' : response.status === 'denied' ? 'denied' : 'undetermined';
+  return { status, canAskAgain: response.canAskAgain !== false };
+}
+
 /** Raw OS permission state — `undetermined` is the only one where it's still safe to show our explanation and ask. */
 export async function getOsPermissionStatus(): Promise<OsPermissionStatus> {
   const { status } = await Notifications.getPermissionsAsync();

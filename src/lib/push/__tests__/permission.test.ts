@@ -59,6 +59,33 @@ describe('maybeRequestPushPermission', () => {
     expect(registerDevice).toHaveBeenCalledWith('assoc-1', 'ExponentPushToken[abc]', expect.any(String));
   });
 
+  // Reprodução do que o Android 13+ devolve de verdade, encontrado em emulador
+  // (API 33) em 18/11/2026. Com `targetSdkVersion >= 33`, o expo-notifications
+  // deriva o status de `areNotificationsEnabled()`, que é FALSO para quem nunca
+  // concedeu a permissão — então o estado inicial chega como 'denied', nunca
+  // como 'undetermined'. Os demais testes deste arquivo mockam 'undetermined' e
+  // por isso nunca viram o problema: no aparelho, ninguém no Android 13+ era
+  // sequer perguntado, e o registro do token nunca acontecia.
+  it('pede a permissão no Android 13, onde o estado inicial chega como denied', async () => {
+    mockSignedInAs('assoc-1');
+    mockExplanationAccepted();
+    jest.spyOn(Notifications, 'getPermissionsAsync').mockResolvedValue({
+      status: 'denied',
+      granted: false,
+      canAskAgain: true,
+    } as never);
+    jest.spyOn(Notifications, 'requestPermissionsAsync').mockResolvedValue({
+      status: 'granted',
+      granted: true,
+    } as never);
+
+    await maybeRequestPushPermission('first_rsvp');
+
+    expect(Alert.alert).toHaveBeenCalledTimes(1);
+    expect(track).toHaveBeenCalledWith('push_permission_result', { granted: true });
+    expect(registerDevice).toHaveBeenCalledWith('assoc-1', 'ExponentPushToken[abc]', expect.any(String));
+  });
+
   it('never asks nem instrumenta uma segunda vez, mas segue registrando o aparelho', async () => {
     mockSignedInAs('assoc-1');
     mockExplanationAccepted();
@@ -133,11 +160,14 @@ describe('maybeRequestPushPermission', () => {
     expect(registerDevice).toHaveBeenCalled();
   });
 
-  it('skips the explanation when the OS permission is already denied, and registers no device', async () => {
+  it('skips the explanation when the OS permission is blocked for good, and registers no device', async () => {
     mockSignedInAs('assoc-1');
     jest.spyOn(Notifications, 'getPermissionsAsync').mockResolvedValue({
       status: 'denied',
       granted: false,
+      // Sem este `false` o caso descrito aqui seria o do Android 13 recém
+      // instalado, onde perguntar é exatamente o que se espera.
+      canAskAgain: false,
     } as never);
     const alertSpy = jest.spyOn(Alert, 'alert');
 

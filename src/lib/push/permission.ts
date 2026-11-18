@@ -3,7 +3,7 @@ import { getApp } from '@react-native-firebase/app';
 import { getAuth } from '@react-native-firebase/auth';
 import { track } from '../instrumentation';
 import { getPushPermissionAsked, setPushPermissionAsked } from './storage';
-import { explainAndRequestPermission, getOsPermissionStatus } from './explainAndRequestPermission';
+import { explainAndRequestPermission, getOsPermissionState } from './explainAndRequestPermission';
 import { registerCurrentDevice } from './deviceRegistration';
 
 /**
@@ -54,15 +54,28 @@ export async function maybeRequestPushPermission(trigger: PushPermissionTrigger)
   // forever, with no error anywhere; so would anyone whose first registration
   // failed transiently (offline at that moment). Found on 14/11/2026 with
   // `devices` empty in Firestore after a successful RSVP.
-  const status = await getOsPermissionStatus();
+  const { status, canAskAgain } = await getOsPermissionState();
   let granted = status === 'granted';
 
-  // Ask at most once ever (9.5, "nunca repetir o pedido"), and only while the
-  // OS answer is still open — explaining on top of a settled permission is
-  // noise. The analytics event belongs to the ASK, so it fires only here;
-  // repeating it on every later call would inflate the funnel.
+  // Pergunta no máximo uma vez na vida (9.5, "nunca repetir o pedido") e só
+  // enquanto o sistema ainda aceita o pedido. O portão é `!granted &&
+  // canAskAgain`, NÃO `status === 'undetermined'`.
+  //
+  // Foi assim que a 9.10 encontrou, em 18/11/2026, um bug que valia a
+  // funcionalidade inteira no Android 13+: lá o expo-notifications deriva o
+  // status de `areNotificationsEnabled()`, falso para quem nunca concedeu a
+  // permissão, então o estado inicial chega como 'denied' e nunca como
+  // 'undetermined'. O portão antigo jamais abria — ninguém no Android 13+ era
+  // perguntado, nenhum token era registrado, e o push simplesmente não existia
+  // para a maior parte dos aparelhos. Pior: a flag era marcada do mesmo jeito,
+  // de modo que nem uma correção posterior faria o app perguntar. Provado em
+  // emulador API 33 e confirmado no fonte Kotlin do módulo.
+  //
+  // A flag e o evento continuam fora desse `if` interno de propósito: no
+  // Android 12 a permissão já nasce concedida, e só instrumentar quando houve
+  // pergunta apagaria do funil justamente quem consegue receber push.
   if (!alreadyAsked) {
-    if (status === 'undetermined') {
+    if (!granted && canAskAgain) {
       granted = await explainAndRequestPermission();
     }
     await setPushPermissionAsked();

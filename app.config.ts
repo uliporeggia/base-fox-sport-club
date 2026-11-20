@@ -63,6 +63,16 @@ const APP_VERSION = '1.0.0';
 // the `fingerprint` runtimeVersion diverge and aborts the build.
 const IOS_BUILD_NUMBER = '2';
 
+// Android versionCode. O Google Play recusa um AAB cujo versionCode já exista,
+// então este também sobe À MÃO a cada envio que mantenha o `APP_VERSION`.
+//
+// É literal pelo mesmo motivo do `IOS_BUILD_NUMBER`, e por um segundo: o
+// `autoIncrement` do perfil de produção **não funciona** com `app.config.ts`
+// dinâmico — o EAS aborta com "autoIncrement option is not supported when
+// using app.config.js". Descoberto na primeira build de produção, em
+// 20/11/2026, depois de o keystore já ter sido criado.
+const ANDROID_VERSION_CODE = 1;
+
 // Resolved purely from APP_ENV — NOT from an EAS file-type secret or
 // environment variable override (NO `process.env.GOOGLE_SERVICES_JSON`,
 // `GOOGLE_SERVICES_FILE`, etc.).
@@ -161,6 +171,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   },
   android: {
     package: bundleIdentifier,
+    versionCode: ANDROID_VERSION_CODE,
     googleServicesFile: googleServicesJson,
     adaptiveIcon: {
       backgroundColor: '#22092F',
